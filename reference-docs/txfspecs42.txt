@@ -1,0 +1,33 @@
+# source:
+#   http://support.moosetechsoftware.com/solutions/txfspecs42.txt
+
+---------------------------------------------------------------------------------
+Header	[V-A-D-^]
+Records	[T-N-C-L-P-D-D-$-$-$-^]
+
+N321  8949-A, short term
+N323  8949-A, long term
+N682  8949-A, wash sale
+N711  8949-B, short term
+N713  8949-B, long term
+N718  8949-B, wash sale
+N712  8949-C, short term
+N714  8949-C, long term
+
+
+V0[version]                                     V042
+A[application]                                  ATax Tool
+D[date of export]                               02/11/2006
+^                                               ^
+T[type: specific, detail]                       TD
+N[number: 321=short, 323=long, 682=wash]        N321
+C[copy: 1]                                      C1
+L[line: 1]                                      L1
+P[description]                                  P100 Nokia (NOK)
+D[buy date: mm/dd/yyyy]                         D06/01/2005
+D[sell date: mm/dd/yyyy]                        D06/01/2005
+$[buy price]                                    $1000.00
+$[sell price]                                   $1050.46
+$[wash loss, skip on zero]                      $280.81
+^                                               ^
+---------------------------------------------------------------------------------
