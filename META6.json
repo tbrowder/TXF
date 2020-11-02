@@ -1,0 +1,30 @@
+{
+  "auth": "cpan:TBROWDER",
+  "authors": [
+    "Tom Browder"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "blah blah blah",
+  "license": "Artistic-2.0",
+  "name": "TXF::Utils",
+  "perl": "6.d",
+  "provides": {
+    "TXF::Utils": "lib/TXF/Utils.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+    "IRS",
+    "H&R Block",
+    "TXF",
+    "Form 8949",
+    "1099B"
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
