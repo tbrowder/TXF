@@ -17,7 +17,7 @@ N714  8949-C, long term
 
 V0[version]                                     V042
 A[application]                                  ATax Tool
-D[date of export]                               02/11/2006
+D[date of export]                               D02/11/2006
 ^                                               ^
 T[type: specific, detail]                       TD
 N[number: 321=short, 323=long, 682=wash]        N321
