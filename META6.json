@@ -1,26 +1,30 @@
 {
-  "auth": "cpan:TBROWDER",
-  "authors": [
-    "Tom Browder"
-  ],
-  "build-depends": [
-  ],
-  "depends": [
-  ],
-  "description": "blah blah blah",
+    "auth": "cpan:TBROWDER",
+    "authors": [
+        "Tom Browder"
+    ],
+    "build-depends": [
+    ],
+    "depends": [
+        "Text::CVS::LibCVS",
+        "Test::Utils"
+    ],
+  "description": "Convert CVS files to TXF format for tax software import",
   "license": "Artistic-2.0",
-  "name": "TXF::Utils",
+  "name": "TXF",
   "perl": "6.d",
   "provides": {
+    "TXF": "lib/TXF.rakumod",
+    "TXF::Transaction": "lib/TXF/Transaction.rakumod",
     "TXF::Utils": "lib/TXF/Utils.rakumod"
   },
   "resources": [
   ],
-  "source-url": "",
+  "source-url": "https://github.com/tbrowder/TXF.git",
   "tags": [
     "IRS",
     "H&R Block",
-    "TXF",
+    "TXF file format",
     "Form 8949",
     "1099B"
   ],
