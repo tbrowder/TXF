@@ -355,15 +355,6 @@ The output data fields will be (based on Form 8949):
     }
 }
 
-BEGIN {
-%BROKERS = [
-    #'amtd'         => TDAmeritrade,
-    #'ib'           => InteractiveBrokers,
-    'tdameritrade'  => TDAmeritrade,
-    #'vanguard'     => Vanguard,
-];
-}
-
 sub RunConverter($broker-name, $filename, $tax-year, $date) is export {
     # get a $broker class object
     my $broker = GetBroker($broker-name, $filename);
