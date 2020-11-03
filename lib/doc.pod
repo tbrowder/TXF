@@ -2,28 +2,48 @@
 
 =head1 NAME
 
-TXF::Utils - blah blah blah
+TXF - blah blah blah
 
 =head1 SYNOPSIS
 
 =begin code :lang<raku>
 
-use TXF::Utils;
+use TXF;
 
 =end code
 
 =head1 DESCRIPTION
 
-TXF::Utils is ...
+TXF is ...
+
+=head1 CREDITS
+
+=item Thanks to fellow [GnuCash](https://gnucash.org) user B<John John Ralls> <jralls@ceridwen.us> who kindly
+found the included reference documents detailing the TXF file format specification.
+
+=item Thanks to Github user B<Misha Brukman> and the Github repository
+atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/)
+for inspiration and some code (as well as the name of the driver program C<cvs2txf.raku>).
+See the code source in file C<./lib/TXF/CVS2TXT.rakumod>
 
 =head1 AUTHOR
 
-Tom Browder <tom.browder@gmail.com>
+Tom Browder <tom.browder@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2020 Tom Browder
+Copyright &#x00A9; 2020 Tom Browder
 
-This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
+This library is free software; you can redistribute it or modify it under the Artistic License 2.0.
+
+head1 Additional LICENSE
+
+One file is licensed under the Apache-2.0 license:
+
+=item ./lib/TXF/GoogleTXF.rakumod
+
+The original source of the content of that file came from
+[https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf)
+and was converted to its present form from Python to Raku.
 
 =end pod

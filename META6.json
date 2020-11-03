@@ -1,14 +1,14 @@
 {
-    "auth": "cpan:TBROWDER",
-    "authors": [
-        "Tom Browder"
-    ],
-    "build-depends": [
-    ],
-    "depends": [
-        "Text::CVS::LibCVS",
-        "Test::Utils"
-    ],
+  "auth": "cpan:TBROWDER",
+  "authors": [
+    "Tom Browder"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+    "Text::CVS::LibCVS",
+    "Test::Utils"
+  ],
   "description": "Convert CVS files to TXF format for tax software import",
   "license": "Artistic-2.0",
   "name": "TXF",
