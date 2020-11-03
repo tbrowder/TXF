@@ -15,8 +15,7 @@
   "perl": "6.d",
   "provides": {
     "TXF": "lib/TXF.rakumod",
-    "TXF::Transaction": "lib/TXF/Transaction.rakumod",
-    "TXF::Utils": "lib/TXF/Utils.rakumod"
+    "TXF::CVS2TXF": "lib/TXF/CVS2TXF.rakumod"
   },
   "resources": [
   ],
@@ -25,6 +24,7 @@
     "IRS",
     "H&R Block",
     "TXF file format",
+    "CSV",
     "Form 8949",
     "1099B"
   ],

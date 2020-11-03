@@ -12,14 +12,8 @@ my $rdir = './t/data';
 # the real data in various formats:
 # as downloaded and named:
 my @f;
-@f[1] = "{$rdir}/R8949_999999999_20190101_20191231.txt"; # really tsv
-@f[2] = "{$rdir}/RC_999999999_20190101_20191231.tsv";
-
-# downloaded as xlsx and converted to plain csv:
-my $rdir2 = "{$rdir}/xlsx/csv";
-@f[3] = "{$rdir2}/R1099_999999999_20190101_20191231.csv";
-@f[4] = "{$rdir2}/R8949_999999999_2019.csv";
-@f[5] = "{$rdir2}/RC_999999999_20190101_20191231.csv";
+@f[1] = "{$rdir}/Realized_999999999_2019.txf";
+# TODO create some more test files from the TXF spec file
 
 my $fnum  = 1;
 my $all   = 0;
@@ -29,11 +23,11 @@ if !@*ARGS.elems {
     say qq:to/HERE/;
     Usage: {$*PROGRAM.basename} 1|2|3|4|5|all|help [debug help]
 
-    Converts the input CSV file to a TXF file.
+    Converts the input TXF file to a CSV file.
     Runs with the following inputs:
         date:     {$date.Date}
         tax-year: $tax-year
-        csv file: {@f[1].IO.basename}
+        txf file: {@f[1].IO.basename}
     HERE
     exit;
 }
@@ -75,11 +69,11 @@ if not $fnum and not $all {
 }
 
 if $fnum {
-    convert-cvs @f[$fnum], $tax-year, $date, :$debug;
+    convert-txf @f[$fnum], $tax-year, $date, :$debug;
     exit;
 }
 
 # $all must be true:
 for @f[1..5] -> $f {
-    convert-cvs $f, $tax-year, $date, :$debug;
+    convert-txf $f, $tax-year, $date, :$debug;
 }

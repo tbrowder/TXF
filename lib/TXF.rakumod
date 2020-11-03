@@ -5,6 +5,106 @@ use Text::Utils :normalize-string;
 
 use TXF::CVS2TXF;
 
+constant $END-RECORD = '^';
+
+=begin comment
+V0[version]                                     V042
+A[application]                                  ATax Tool
+D[date of export]                               D02/11/2006
+=end comment
+
+class TXF-record {
+    # has some headers
+    has $.V is rw;
+    has $.A is rw;
+    has $.D is rw;
+
+    method write($fh, :$debug) {
+    }
+}
+
+class TXF-file {
+    has $.D;
+
+    has @.records;
+    
+    method write-file($f, :$create, :$debug) {
+        my $fh = open $f, :w, :create;
+        for @.records -> $rec {
+            $rec.write: $fh;
+        }
+    }
+
+    method read-file($f, :$debug) {
+        my $in-record   = 0;
+        my $has-headers = 0;  
+        my $num-headers = 0; # should have 3 
+        my $curr-rec    = 0;
+        my $lnum        = 0;
+        LINE: for $f.IO.lines -> $line is copy {
+            ++$lnum;
+            # skip blank lines
+            next LINE if $line !~~ /\S/;
+
+            # get the first char
+            my @c = $line.comb;
+            my $c = @c.shift;
+            # ^ is end of the record
+            if $c eq $END-RECORD {
+                # check error conditions
+                if not $in-record {
+                    die "end of record flag without being in a record on line $lnum of file $f";
+                } 
+                if $has-headers {
+                    # there should be a curr-rec
+                    self.records.push: $curr-rec;
+                    $curr-rec = 0; 
+                }
+                $in-record = 0;
+                next LINE;
+            }
+
+            #=======================================================
+            # at this point we should be in or starting a new record
+            my $val = @c.join;
+            #=======================================================
+
+            #=======================================================
+            # is it a header?
+            if not $has-headers {
+                # handle and go to next line
+                if $c eq 'V' {
+                    die "duplicate header flag $c on line $lnum of file $f" if self.V;
+                    self.V = $val;
+                }
+                elsif $c eq 'A' {
+                    die "duplicate header flag $c on line $lnum of file $f" if self.A;
+                    self.A = $val;
+                }
+                elsif $c eq 'D' {
+                    die "duplicate header flag $c on line $lnum of file $f" if self.D;
+                    self.D = $val;
+                }
+                else {
+                    die "unknown header flag $c on line $lnum of file $f";
+                }
+                ++$num-headers; # should have 3 
+                if $num-headers > 3 {
+                    die "more than 3 header records with header flag $c on line $lnum of file $f";
+                }
+                next LINE
+            }
+
+            #=======================================================
+            # now we must be in a transaction record 
+
+
+        }
+
+    }
+
+}
+
 sub cvs-delim($cvs-fname) {
     # given a CVS type file, guess the delimiter
     # from the extension
@@ -60,6 +160,11 @@ sub csvhdrs2irs($cvsfile --> Hash) {
 sub find-known-formats($fstring, $cvsfile --> Hash) {
 }
 
+sub Date2date(Date $d --> Str) {
+    # convert a Date object to mm/dd/yyyy string format
+    return {sprintf "%02d/%02d/%04d", $d.month, $d.day, $d.year};
+}
+
 sub date2Date(Str $date --> Date) {
     # date is expected in format: mm/dd/yyyy
     #   but it may be in other, similar formats
@@ -94,7 +199,10 @@ sub date2Date(Str $date --> Date) {
     return Date.new: {sprintf "%04d-%02d-%02d", $year, $month, $day};
 }
 
-sub convert-cvs($f, $tax-year, $date, :$debug) is export {
+sub convert-txf($f, $tax-year, Date $date, :$debug) is export {
+}
+
+sub convert-cvs($f, $tax-year, Date $date, :$debug) is export {
 }
 
 sub get-transactions($filename, :$debug) {
