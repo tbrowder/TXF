@@ -5,28 +5,61 @@ use Text::Utils :normalize-string;
 
 use TXF::CVS2TXF;
 
-constant $END-RECORD = '^';
+constant $END-RECORD  = '^';
+constant $TXF-VERSION = '042'; # TXF format version
 
 =begin comment
 V0[version]                                     V042
 A[application]                                  ATax Tool
 D[date of export]                               D02/11/2006
+
+Header	[V-A-D-^]
+Records	[T-N-C-L-P-D-D-$-$-$-^]
 =end comment
 
-class TXF-record {
-    # has some headers
-    has $.V is rw;
-    has $.A is rw;
-    has $.D is rw;
+constant %RECORD-IDS = [
+    # The key is the leading field code, its value is number of the fields allowed per record.
+    # There are more field codes but they will be added as I discover
+    # them.
+
+    # There are other rules that need to be handled before final testing.
+    T   => 1,
+    N   => 1,
+    C   => 1,
+    L   => 1,
+    P   => 1,
+    D   => 2,
+    '$' => 2,
+];
+
+
+class TXF-field {
+    has $.id    is rw;
+    has $.value is rw;
 
     method write($fh, :$debug) {
     }
 }
 
-class TXF-file {
-    has $.D;
+class TXF-record {
+    # has various fields and some can be repeated
+    # records are terminated with a carat character
+    has TXF-field @.fields is rw;
 
-    has @.records;
+    method write($fh, :$debug) {
+        for @.fields -> $field {
+            $field.write: $fh;
+        }
+    }
+}
+
+class TXF-file {
+    # has some headers
+    has $.V is rw; # throw if value is not '042'
+    has $.A is rw;
+    has $.D is rw;
+
+    has TXF-record @.records is rw;
     
     method write-file($f, :$create, :$debug) {
         my $fh = open $f, :w, :create;
@@ -75,6 +108,9 @@ class TXF-file {
                 # handle and go to next line
                 if $c eq 'V' {
                     die "duplicate header flag $c on line $lnum of file $f" if self.V;
+                    if $val ne $TXF-VERSION {
+                        die "non-current TXF version number $val (expected '$TXF-VERSION') on line $lnum of file $f";
+                    }
                     self.V = $val;
                 }
                 elsif $c eq 'A' {
