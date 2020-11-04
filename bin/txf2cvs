@@ -4,7 +4,7 @@ use lib <./lib>;
 use TXF;
 
 my $tax-year = '2019';
-my $date = DateTime.now;
+my $date = DateTime.now.Date;
 
 # use real data:
 my $rdir = './t/data';
