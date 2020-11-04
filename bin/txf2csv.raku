@@ -25,9 +25,9 @@ if !@*ARGS.elems {
 
     Converts the input TXF file to a CSV file.
     Runs with the following inputs with an argument of 1:
-        date:     {$date.Date}
         tax-year: $tax-year
         txf file: {@f[1].IO.basename}
+    Output is to STDOUT.
     HERE
     exit;
 }

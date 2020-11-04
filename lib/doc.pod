@@ -2,27 +2,42 @@
 
 =head1 NAME
 
-TXF - Provides tools to create TXF files for import into tax software
+TXF - Provides tools to create TXF (tax exchange format) files for import into tax software
 
 =head1 SYNOPSIS
 
 =begin code :lang<raku>
 $ zef install TXF
 ...
-$ csv2txf in=/path/file.cvs out=/path/to/file.txf
+$ csv2txf /path/file.csv tax-year=2019 [toml=mycfg.toml] > /path/to/file.txf
 Normal end.
-See new file /path/to/file.txf
-$ txt2cvs in=/path/file2.txf out=/path/to/file2.csv
+Using default configuration file '$HOME/.TXF/config.toml'.
+$
+$ txt2csv /path/file2.txf tax-year=2019 [toml=mycfg.toml] > /path/to/file2.csv
 Normal end.
-See new file /path/to/file2.cvs
+Using default configuration file '$HOME/.TXF/config.toml'.
+$
+$ gen-tax-forms /path/to/file.csv tax-year=2019 [toml=myconfig.toml]
+Normal end.
+Using default configuration file './2019.toml'.
+See new files:
+  f8949-2019.csv
+  f8949-2019.txf
+  schedule-d-2019.csv
+$
 =end code
 
 =head1 DESCRIPTION
 
-TXF is a module that provides Raku programs to convert
-text files from/to CVS/TXF format. TXF files can be
+TXF is a module that provides three Raku programs to convert
+text files from/to CVS/TXF format and to specifically
+prepare files for US IRS requirements for tax reporting
+of stock sales. TXF files can be
 used to import US IRS-required data on stock sales into
 such tax software as I<TurboTax> and I<H&R Block>.
+
+The module may be able to help with other financial software
+if there is interest.
 
 There are example account stock sale CVS output files from financial 
 investment company

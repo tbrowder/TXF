@@ -2,7 +2,7 @@
 
 if not @*ARGS.elems {
     say qq:to/HERE/;
-    Usage: {$*PROGRAM.basename} csv-file tax-year=yyyy > txf-file
+    Usage: {$*PROGRAM.basename} txf-file tax-year=yyyy > csv-file
     HERE
     exit
 }

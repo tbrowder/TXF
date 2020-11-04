@@ -2,6 +2,7 @@ unit module TXF;
 
 use Text::CSV::LibCSV;
 use Text::Utils :normalize-string;
+use Config::TOML;
 
 use TXF::CVS2TXF;
 
@@ -247,10 +248,13 @@ sub date2Date(Str $date --> Date) {
     return Date.new: {sprintf "%04d-%02d-%02d", $year, $month, $day};
 }
 
-sub convert-txf($f, $tax-year, Date $date, :$debug) is export {
+sub convert-txf($f, :$tax-year!, :$debug) is export {
+    my Date $date = DateTime.now.Date;
+
 }
 
-sub convert-cvs($f, $tax-year, Date $date, :$debug) is export {
+sub convert-cvs($f, $tax-year!, :$debug) is export {
+    my Date $date = DateTime.now.Date;
 }
 
 sub get-txf-transactions($filename, :$debug) {
