@@ -30,7 +30,7 @@ if !@*ARGS.elems {
     Usage: {$*PROGRAM.basename} 1|2|3|4|5|all|help [debug help]
 
     Converts the input CSV file to a TXF file.
-    Runs with the following inputs:
+    Runs with the following inputs with an argument of 1:
         date:     {$date.Date}
         tax-year: $tax-year
         csv file: {@f[1].IO.basename}

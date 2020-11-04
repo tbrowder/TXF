@@ -34,17 +34,21 @@ constant %RECORD-IDS = [
 
 
 class TXF-field {
-    has $.id    is rw;
-    has $.value is rw;
+    has $.id      is rw;
+    has $.value   is rw;
+    has $.linenum is rw;
 
     method write($fh, :$debug) {
+        $fh.print: self.id;
+        $fh.say:   self.value;
     }
 }
 
 class TXF-record {
     # has various fields and some can be repeated
     # records are terminated with a carat character
-    has TXF-field @.fields is rw;
+    has           $.linenum is rw = -1;
+    has TXF-field @.fields  is rw;
 
     method write($fh, :$debug) {
         for @.fields -> $field {
@@ -72,7 +76,7 @@ class TXF-file {
         my $in-record   = 0;
         my $has-headers = 0;  
         my $num-headers = 0; # should have 3 
-        my $curr-rec    = 0;
+        my $curr-rec    = 0; # hold the current record object
         my $lnum        = 0;
         LINE: for $f.IO.lines -> $line is copy {
             ++$lnum;
@@ -133,7 +137,15 @@ class TXF-file {
 
             #=======================================================
             # now we must be in a transaction record 
-
+            if not $curr-rec {
+                $curr-rec = TXF-record.new;
+            }
+            # assign the field to the current record
+            my $field      = TXF-field.new;
+            $field.id      = $c;
+            $field.linenum = $lnum;
+            $field.value   = $val;
+       
 
         }
 
@@ -241,7 +253,11 @@ sub convert-txf($f, $tax-year, Date $date, :$debug) is export {
 sub convert-cvs($f, $tax-year, Date $date, :$debug) is export {
 }
 
-sub get-transactions($filename, :$debug) {
+sub get-txf-transactions($filename, :$debug) {
+    
+}
+
+sub get-cvs-transactions($filename, :$debug) {
 
 =begin comment
 

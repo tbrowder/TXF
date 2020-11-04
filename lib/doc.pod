@@ -2,19 +2,35 @@
 
 =head1 NAME
 
-TXF - blah blah blah
+TXF - Provides tools to create TXF files for import into tax software
 
 =head1 SYNOPSIS
 
 =begin code :lang<raku>
-
-use TXF;
-
+$ zef install TXF
+...
+$ csv2txf in=/path/file.cvs out=/path/to/file.txf
+Normal end.
+See new file /path/to/file.txf
+$ txt2cvs in=/path/file2.txf out=/path/to/file2.csv
+Normal end.
+See new file /path/to/file2.cvs
 =end code
 
 =head1 DESCRIPTION
 
-TXF is ...
+TXF is a module that provides Raku programs to convert
+text files from/to CVS/TXF format. TXF files can be
+used to import US IRS-required data on stock sales into
+such tax software as I<TurboTax> and I<H&R Block>.
+
+There are example account stock sale CVS output files from financial 
+investment company
+I<TD Ameritrade>, but the conversion programs should be able to
+handle any input format if the user can provide a text input file
+that maps the appropriate CVS file's field names (column headers)
+to the standard IRS Form 8949 fields as used in the sample
+I<Form8949.csv> and I<Form8949.xlsx> files.
 
 =head1 CREDITS
 
@@ -40,10 +56,12 @@ head1 Additional LICENSE
 
 One file is licensed under the Apache-2.0 license:
 
-=item ./lib/TXF/GoogleTXF.rakumod
+=item ./lib/TXF/CVS2TXF.rakumod
+
+A copy of that license is found in directory C<lib/TXF/>.
 
 The original source of the content of that file came from
-[https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf)
+Github repository [https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf)
 and was converted to its present form from Python to Raku.
 
 =end pod
