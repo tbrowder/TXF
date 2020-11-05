@@ -1,0 +1,13 @@
+# This will be used if no other config file
+# is specified.
+
+tax-year = 2019
+broker = "TD Ameritrade"
+
+# mapping from TD Ameritrade export csv file
+# to the IRS transaction class
+[map-td2irs-2019]
+Descrip
+
+
+
