@@ -2,12 +2,17 @@
 # is specified.
 
 tax-year = 2019
-broker = "TD Ameritrade"
+broker   = "TD Ameritrade"
+map      = "map-td2irs-2019"
 
-# mapping from TD Ameritrade export csv file
-# to the IRS transaction class
+# Mapping from TD Ameritrade export csv file
+# to the IRS transaction class.
+#   key:   transaction class attr name
+#   value: csv column name
 [map-td2irs-2019]
-Descrip
+Descrip = "?"
+...
+
 
 
 

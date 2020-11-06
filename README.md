@@ -3,19 +3,47 @@
 NAME
 ====
 
-TXF - blah blah blah
+TXF - Provides tools to create TXF (tax exchange format) files for import into tax software
 
 SYNOPSIS
 ========
 
 ```raku
-use TXF;
+$ zef install TXF
+...
+$ csv2txf /path/file.csv tax-year=2019 [toml=mycfg.toml] > /path/to/file.txf
+Normal end.
+Using default configuration file '$HOME/.TXF/config.toml'.
+$
+$ txt2csv /path/file2.txf tax-year=2019 [toml=mycfg.toml] > /path/to/file2.csv
+Normal end.
+Using default configuration file '$HOME/.TXF/config.toml'.
+$
+$ gen-tax-forms /path/to/file.csv tax-year=2019 [toml=myconfig.toml]
+Normal end.
+Using default configuration file './2019.toml'.
+See new files:
+  f8949-2019.csv
+  f8949-2019.txf
+  schedule-d-2019.csv
+$
 ```
 
 DESCRIPTION
 ===========
 
-TXF is ...
+TXF is a module that provides three Raku programs to convert text files from/to CVS/TXF format and to specifically prepare files for US IRS requirements for tax reporting of stock sales. TXF files can be used to import US IRS-required data on stock sales into such tax software as *TurboTax* and *H&R Block*.
+
+The module may be able to help with other financial software if there is interest.
+
+There are example account stock sale CVS output files from financial investment company *TD Ameritrade*, but the conversion programs should be able to handle any input format if the user can provide a text input file that maps the appropriate CVS file's field names (column headers) to the standard IRS Form 8949 fields as used in the sample *Form8949.csv* and *Form8949.xlsx* files. See the inputs required in file 'resources/default.tom'.
+
+Planned capability
+==================
+
+  * Version 1.0.0
+
+    * Convert an investment company's tax year stock sales in CSV format to a TXF file for import into H & R Block's individual tax return software for 2019.
 
 CREDITS
 =======
@@ -40,7 +68,9 @@ head1 Additional LICENSE
 
 One file is licensed under the Apache-2.0 license:
 
-  * ./lib/TXF/GoogleTXF.rakumod
+  * ./lib/TXF/CVS2TXF.rakumod
 
-The original source of the content of that file came from [https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf) and was converted to its present form from Python to Raku.
+A copy of that license is found in directory `lib/TXF/`.
+
+The original source of the content of that file came from Github repository [https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf) and was converted to its present form from Python to Raku.
 

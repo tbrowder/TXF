@@ -46,6 +46,37 @@ handle any input format if the user can provide a text input file
 that maps the appropriate CVS file's field names (column headers)
 to the standard IRS Form 8949 fields as used in the sample
 I<Form8949.csv> and I<Form8949.xlsx> files.
+See the inputs required in file 'resources/config.toml'.
+
+=head1 Planned capability
+
+=item Version 0.1.0
+
+=item2 Situation 1 
+
+All short- and long-term stock sales are "covered" with
+bases reported to the IRS and no adjustments are needed.
+
+Capability: Convert any investment company's tax year stock sales in
+CSV format to a TXF file for import into H & R Block's individual
+tax return software for 2019.
+
+=item2 Situation 2
+
+One or more stock sales need (1) corrections to data reported to
+the IRS or (2) missing data provided reported to the IRS.
+
+Capability: Use an enhanced example Form 8949 xlsx file to
+provide the missing or erroneous data as a PDF file to be
+attached to a printed tax filing. 
+
+
+
+
+
+
+
+
 
 =head1 CREDITS
 
