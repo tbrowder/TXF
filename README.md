@@ -41,15 +41,16 @@ There are example account stock sale CVS output files from financial investment 
 Planned capability
 ==================
 
-  * Version 0.1.0
+Version 0.1.0
+-------------
 
-    * Situation 1 
+  * Situation 1 
 
 All short- and long-term stock sales are "covered" with bases reported to the IRS and no adjustments are needed.
 
 Capability: Convert any investment company's tax year stock sales in CSV format to a TXF file for import into H & R Block's individual tax return software for 2019.
 
-    * Situation 2
+  * Situation 2
 
 One or more stock sales (1) need corrections to data previously reported to the IRS or (2) have missing data to be provided to the IRS.
 
