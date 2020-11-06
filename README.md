@@ -51,9 +51,9 @@ Capability: Convert any investment company's tax year stock sales in CSV format 
 
     * Situation 2
 
-One or more stock sales need (1) corrections to data reported to the IRS or (2) missing data provided reported to the IRS.
+One or more stock sales (1) need corrections to data previously reported to the IRS or (2) have missing data to be provided to the IRS.
 
-Capability: Use an enhanced example Form 8949 xlsx file to provide the missing or erroneous data as a PDF file to be attached to a printed tax filing. 
+Capability: Use an enhanced example Form 8949 xlsx file to provide the missing or erroneous data as a PDF file to be attached to a printed and mailed tax return. 
 
 CREDITS
 =======
