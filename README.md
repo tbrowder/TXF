@@ -36,14 +36,24 @@ TXF is a module that provides three Raku programs to convert text files from/to 
 
 The module may be able to help with other financial software if there is interest.
 
-There are example account stock sale CVS output files from financial investment company *TD Ameritrade*, but the conversion programs should be able to handle any input format if the user can provide a text input file that maps the appropriate CVS file's field names (column headers) to the standard IRS Form 8949 fields as used in the sample *Form8949.csv* and *Form8949.xlsx* files. See the inputs required in file 'resources/default.tom'.
+There are example account stock sale CVS output files from financial investment company *TD Ameritrade*, but the conversion programs should be able to handle any input format if the user can provide a text input file that maps the appropriate CVS file's field names (column headers) to the standard IRS Form 8949 fields as used in the sample *Form8949.csv* and *Form8949.xlsx* files. See the inputs required in file 'resources/config.toml'.
 
 Planned capability
 ==================
 
-  * Version 1.0.0
+  * Version 0.1.0
 
-    * Convert an investment company's tax year stock sales in CSV format to a TXF file for import into H & R Block's individual tax return software for 2019.
+    * Situation 1 
+
+All short- and long-term stock sales are "covered" with bases reported to the IRS and no adjustments are needed.
+
+Capability: Convert any investment company's tax year stock sales in CSV format to a TXF file for import into H & R Block's individual tax return software for 2019.
+
+    * Situation 2
+
+One or more stock sales need (1) corrections to data reported to the IRS or (2) missing data provided reported to the IRS.
+
+Capability: Use an enhanced example Form 8949 xlsx file to provide the missing or erroneous data as a PDF file to be attached to a printed tax filing. 
 
 CREDITS
 =======
@@ -64,7 +74,8 @@ Copyright &#x00A9; 2020 Tom Browder
 
 This library is free software; you can redistribute it or modify it under the Artistic License 2.0.
 
-head1 Additional LICENSE
+Additional LICENSE
+==================
 
 One file is licensed under the Apache-2.0 license:
 
