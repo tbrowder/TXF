@@ -32,11 +32,11 @@ $
 DESCRIPTION
 ===========
 
-TXF is a module that provides three Raku programs to convert text files from/to CVS/TXF format and to specifically prepare files for US IRS requirements for tax reporting of stock sales. TXF files can be used to import US IRS-required data on stock sales into such tax software as *TurboTax* and *H\&R Block*.
+TXF is a module that provides three Raku programs to convert text files from/to CSV/TXF format and to specifically prepare files for US IRS requirements for tax reporting of stock sales. TXF files can be used to import US IRS-required data on stock sales into such tax software as *TurboTax* and *H\&R Block*.
 
 The module may be able to help with other financial software if there is interest.
 
-There are example account stock sale CVS output files from financial investment company *TD Ameritrade*, but the conversion programs should be able to handle any input format if the user can provide a text input file that maps the appropriate CVS file's field names (column headers) to the standard IRS Form 8949 fields as used in the sample *Form8949.csv* and *Form8949.xlsx* files. See the inputs required in file 'resources/config.toml'.
+There are example account stock sale CSV output files from financial investment company *TD Ameritrade*, but the conversion programs should be able to handle any input format if the user can provide a text input file that maps the appropriate CSV file's field names (column headers) to the standard IRS Form 8949 fields as used in the sample *Form8949.csv* and *Form8949.xlsx* files. See the inputs required in file 'resources/config.toml'.
 
 Planned capability
 ==================
@@ -61,7 +61,7 @@ CREDITS
 
   * Thanks to fellow [GnuCash](https://gnucash.org) user **John John Ralls** <jralls@ceridwen.us> who kindly found the included reference documents detailing the TXF file format specification.
 
-  * Thanks to Github user **Misha Brukman** and the Github repository atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/) for inspiration and some code (as well as the name of the driver program `cvs2txf.raku`). See the code source in file `./lib/TXF/CVS2TXT.rakumod`
+  * Thanks to Github user **Misha Brukman** and the Github repository atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/) for inspiration and some code (as well as the name of the driver program `csv2txf.raku`). See the code source in file `./lib/TXF/CSV2TXT.rakumod`
 
 AUTHOR
 ======
@@ -80,7 +80,7 @@ Additional LICENSE
 
 One file is licensed under the Apache-2.0 license:
 
-  * ./lib/TXF/CVS2TXF.rakumod
+  * ./lib/TXF/CSV2TXF.rakumod
 
 A copy of that license is found in directory `lib/TXF/`.
 
