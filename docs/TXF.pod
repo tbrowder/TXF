@@ -30,7 +30,7 @@ $
 =head1 DESCRIPTION
 
 TXF is a module that provides three Raku programs to convert
-text files from/to CVS/TXF format and to specifically
+text files from/to CSV/TXF format and to specifically
 prepare files for US IRS requirements for tax reporting
 of stock sales. TXF files can be
 used to import US IRS-required data on stock sales into
@@ -39,11 +39,11 @@ such tax software as I<TurboTax> and I<H\&R Block>.
 The module may be able to help with other financial software
 if there is interest.
 
-There are example account stock sale CVS output files from financial 
+There are example account stock sale CSV output files from financial 
 investment company
 I<TD Ameritrade>, but the conversion programs should be able to
 handle any input format if the user can provide a text input file
-that maps the appropriate CVS file's field names (column headers)
+that maps the appropriate CSV file's field names (column headers)
 to the standard IRS Form 8949 fields as used in the sample
 I<Form8949.csv> and I<Form8949.xlsx> files.
 See the inputs required in file 'resources/config.toml'.
@@ -78,8 +78,8 @@ found the included reference documents detailing the TXF file format specificati
 
 =item Thanks to Github user B<Misha Brukman> and the Github repository
 atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/)
-for inspiration and some code (as well as the name of the driver program C<cvs2txf.raku>).
-See the code source in file C<./lib/TXF/CVS2TXT.rakumod>
+for inspiration and some code (as well as the name of the driver program C<csv2txf.raku>).
+See the code source in file C<./lib/TXF/CSV2TXT.rakumod>
 
 =head1 AUTHOR
 
@@ -95,7 +95,7 @@ This library is free software; you can redistribute it or modify it under the Ar
 
 One file is licensed under the Apache-2.0 license:
 
-=item ./lib/TXF/CVS2TXF.rakumod
+=item ./lib/TXF/CSV2TXF.rakumod
 
 A copy of that license is found in directory C<lib/TXF/>.
 
