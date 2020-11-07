@@ -1,0 +1,13 @@
+Notes:
+
+In a grammar, to get the line number of a token (thanks to @moritz on IRC 2020-11-07):
+
+
+say “ab\ncd\n\ef” ~~ /cd/;
+say 1 + $/.prematch.trim-trailing.lines.elems
+
+# Note the line numbers are indexed from zero but conventionally we
+# talk about line numbers from one so we simply add the 1 to the
+# result.
+
+my $linenumber = $/.prematch.trim-trailing.lines.elems + 1;

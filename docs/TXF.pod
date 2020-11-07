@@ -2,7 +2,8 @@
 
 =head1 NAME
 
-TXF - Provides tools to create TXF (tax exchange format) files for import into tax software
+TXF - Provides tools to create TXF (tax exchange format) files for
+import into tax software
 
 =head1 SYNOPSIS
 
@@ -29,57 +30,57 @@ $
 
 =head1 DESCRIPTION
 
-TXF is a module that provides three Raku programs to convert
-text files from/to CSV/TXF format and to specifically
-prepare files for US IRS requirements for tax reporting
-of stock sales. TXF files can be
-used to import US IRS-required data on stock sales into
-such tax software as I<TurboTax> and I<H\&R Block>.
+TXF is a module that provides three Raku programs to convert text
+files from/to CSV/TXF format and to specifically prepare files for US
+IRS requirements for tax reporting of stock sales. TXF files can be
+used to import US IRS-required data on stock sales into such tax
+software as I<TurboTax> and I<H\&R Block>.
 
-The module may be able to help with other financial software
-if there is interest.
+The module may be able to help with other financial software if there
+is interest.
 
-There are example account stock sale CSV output files from financial 
-investment company
-I<TD Ameritrade>, but the conversion programs should be able to
-handle any input format if the user can provide a text input file
-that maps the appropriate CSV file's field names (column headers)
-to the standard IRS Form 8949 fields as used in the sample
-I<Form8949.csv> and I<Form8949.xlsx> files.
-See the inputs required in file 'resources/config.toml'.
+There are example account stock sale CSV output files from financial
+investment company I<TD Ameritrade>, but the conversion programs
+should be able to handle any input format if the user can provide a
+text input file that maps the appropriate CSV file's field names
+(column headers) to the standard IRS Form 8949 fields as used in the
+sample I<Form8949.csv> and I<Form8949.xlsx> files.  See the inputs
+required in file 'resources/config.toml'.
 
 =head1 Planned capability
 
 =head2 Version 0.1.0
 
-=item Situation 1 
+=item Situation 1
 
-All short- and long-term stock sales are "covered" with
-bases reported to the IRS and no adjustments are needed.
+All short- and long-term stock sales are "covered" with bases reported
+to the IRS and no adjustments are needed.
 
 Capability: Convert any investment company's tax year stock sales in
-CSV format to a TXF file for import into H \& R Block's individual
-tax return software for 2019.
+CSV format to a TXF file for import into H \& R Block's individual tax
+return software for 2019.
 
 =item Situation 2
 
-One or more stock sales (1) need corrections to data previously reported to
-the IRS or (2) have missing data to be provided to the IRS.
+One or more stock sales (1) need corrections to data previously
+reported to the IRS or (2) have missing data to be provided to the
+IRS.
 
-Capability: Use an enhanced example Form 8949 xlsx file to
-provide the missing or erroneous data as a PDF file to be
-attached to a printed and mailed tax return. 
-
+Capability: Use an enhanced example Form 8949 xlsx file to provide the
+missing or erroneous data as a PDF file to be attached to a printed
+and mailed tax return.
 
 =head1 CREDITS
 
-=item Thanks to fellow [GnuCash](https://gnucash.org) user B<John John Ralls> <jralls@ceridwen.us> who kindly
-found the included reference documents detailing the TXF file format specification.
+=item Thanks to fellow [GnuCash](https://gnucash.org) user B<John John
+Ralls> <jralls@ceridwen.us> who kindly found the included reference
+documents detailing the TXF file format specification.
 
 =item Thanks to Github user B<Misha Brukman> and the Github repository
 atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/)
-for inspiration and some code (as well as the name of the driver program C<csv2txf.raku>).
-See the code source in file C<./lib/TXF/CSV2TXT.rakumod>
+for inspiration and some code (as well as the name of the driver
+program C<csv2txf.raku>).  See the code source in file
+C<./lib/TXF/CSV2TXT.rakumod>
 
 =head1 AUTHOR
 
@@ -89,7 +90,8 @@ Tom Browder <tom.browder@cpan.org>
 
 Copyright &#x00A9; 2020 Tom Browder
 
-This library is free software; you can redistribute it or modify it under the Artistic License 2.0.
+This library is free software; you can redistribute it or modify it
+under the Artistic License 2.0.
 
 =head1 Additional LICENSE
 
@@ -99,8 +101,9 @@ One file is licensed under the Apache-2.0 license:
 
 A copy of that license is found in directory C<lib/TXF/>.
 
-The original source of the content of that file came from
-Github repository [https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf)
+The original source of the content of that file came from Github
+repository
+[https://github.com/mbrukman/csv2txf](https://github.com/mbrukman/csv2txf)
 and was converted to its present form from Python to Raku.
 
 =end pod

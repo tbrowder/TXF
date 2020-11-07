@@ -44,7 +44,7 @@ Planned capability
 Version 0.1.0
 -------------
 
-  * Situation 1 
+  * Situation 1
 
 All short- and long-term stock sales are "covered" with bases reported to the IRS and no adjustments are needed.
 
@@ -54,7 +54,7 @@ Capability: Convert any investment company's tax year stock sales in CSV format 
 
 One or more stock sales (1) need corrections to data previously reported to the IRS or (2) have missing data to be provided to the IRS.
 
-Capability: Use an enhanced example Form 8949 xlsx file to provide the missing or erroneous data as a PDF file to be attached to a printed and mailed tax return. 
+Capability: Use an enhanced example Form 8949 xlsx file to provide the missing or erroneous data as a PDF file to be attached to a printed and mailed tax return.
 
 CREDITS
 =======
