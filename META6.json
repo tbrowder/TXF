@@ -6,17 +6,17 @@
   "build-depends": [
   ],
   "depends": [
-    "Text::CVS::LibCVS",
+    "Text::CSV::LibCSV",
     "Config::TOML",
     "Test::Utils"
   ],
-  "description": "Convert CVS files to TXF format for tax software import",
+  "description": "Convert CSV files to TXF format for tax software import",
   "license": "Artistic-2.0",
   "name": "TXF",
   "perl": "6.d",
   "provides": {
     "TXF": "lib/TXF.rakumod",
-    "TXF::CVS2TXF": "lib/TXF/CVS2TXF.rakumod"
+    "TXF::CSVTXF": "lib/TXF/CSV2TXF.rakumod"
   },
   "resources": [
   ],

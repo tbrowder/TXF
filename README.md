@@ -32,7 +32,7 @@ $
 DESCRIPTION
 ===========
 
-TXF is a module that provides three Raku programs to convert text files from/to CVS/TXF format and to specifically prepare files for US IRS requirements for tax reporting of stock sales. TXF files can be used to import US IRS-required data on stock sales into such tax software as *TurboTax* and *H&R Block*.
+TXF is a module that provides three Raku programs to convert text files from/to CVS/TXF format and to specifically prepare files for US IRS requirements for tax reporting of stock sales. TXF files can be used to import US IRS-required data on stock sales into such tax software as *TurboTax* and *H\&R Block*.
 
 The module may be able to help with other financial software if there is interest.
 
@@ -48,7 +48,7 @@ Version 0.1.0
 
 All short- and long-term stock sales are "covered" with bases reported to the IRS and no adjustments are needed.
 
-Capability: Convert any investment company's tax year stock sales in CSV format to a TXF file for import into H & R Block's individual tax return software for 2019.
+Capability: Convert any investment company's tax year stock sales in CSV format to a TXF file for import into H \& R Block's individual tax return software for 2019.
 
   * Situation 2
 
