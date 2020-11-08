@@ -4,7 +4,7 @@ use Text::CSV::LibCSV;
 use Text::Utils :normalize-string;
 use Config::TOML;
 
-use TXF::CVS2TXF;
+use TXF::CSV2TXF;
 
 constant $END-RECORD  = '^';
 constant $TXF-VERSION = '042'; # TXF format version
@@ -154,36 +154,36 @@ class TXF-file {
 
 }
 
-sub cvs-delim($cvs-fname) {
-    # given a CVS type file, guess the delimiter
+sub csv-delim($csv-fname) {
+    # given a CSV type file, guess the delimiter
     # from the extension
     my $delim = ','; # default
-    if $cvs-fname ~~ /'.csv'$/ {
+    if $csv-fname ~~ /'.csv'$/ {
         ; # ok, default
     }
-    elsif $cvs-fname ~~ /'.tsv'$/ {
+    elsif $csv-fname ~~ /'.tsv'$/ {
         $delim = "\t";
     }
-    elsif $cvs-fname ~~ /'.txt'$/ {
+    elsif $csv-fname ~~ /'.txt'$/ {
         $delim = "\t";
     }
-    elsif $cvs-fname ~~ /'.psv'$/ {
+    elsif $csv-fname ~~ /'.psv'$/ {
         $delim = '|';
     }
     else {
-        die "FATAL: Unable to handle 'csv' delimiter for file '{$cvs-fname.IO.basename}'";
+        die "FATAL: Unable to handle 'csv' delimiter for file '{$csv-fname.IO.basename}'";
     }
     return $delim;
 }
 
-sub csvhdrs2irs($cvsfile --> Hash) {
-    # given a CVS file with headers, map the appropriate
+sub csvhdrs2irs($csvfile --> Hash) {
+    # given a CSV file with headers, map the appropriate
     # header to the IRS field name
 
     # get the field names from the first row of the file
-    my $delim = cvs-delim $cvsfile;
+    my $delim = csv-delim $csvfile;
     my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim));
-    my @rows = $parser.read-file($cvsfile);
+    my @rows = $parser.read-file($csvfile);
     my @fields = @(@rows[0]);
     my $len = @fields.elems;
 
@@ -197,7 +197,7 @@ sub csvhdrs2irs($cvsfile --> Hash) {
     }
 
     # check the field string against known formats
-    my %irsfields = find-known-formats $fstring, $cvsfile;
+    my %irsfields = find-known-formats $fstring, $csvfile;
     if not %irsfields.elems {
         # we must abort unless we can get an alternative
         # by allowing the user to provide a map in an input
@@ -206,7 +206,7 @@ sub csvhdrs2irs($cvsfile --> Hash) {
     return %irsfields;
 }
 
-sub find-known-formats($fstring, $cvsfile --> Hash) {
+sub find-known-formats($fstring, $csvfile --> Hash) {
 }
 
 sub Date2date(Date $d --> Str) {
@@ -253,7 +253,7 @@ sub convert-txf($f, :$tax-year!, :$debug) is export {
 
 }
 
-sub convert-cvs($f, $tax-year!, :$debug) is export {
+sub convert-csv($f, $tax-year!, :$debug) is export {
     my Date $date = DateTime.now.Date;
 }
 
@@ -261,7 +261,7 @@ sub get-txf-transactions($filename, :$debug) {
     
 }
 
-sub get-cvs-transactions($filename, :$debug) {
+sub get-csv-transactions($filename, :$debug) {
 
 =begin comment
 
@@ -293,7 +293,7 @@ Security|Trans type|Qty|Open date|Cost|Close date|Proceeds|ST gain($)|LT gain($)
 
 One solution is, for each input file, group the common headers to
 satisfy the TXF output requirements Create a class or sub to take a
-CVS file and map its appropriate field name to the IRS name on the
+CSV file and map its appropriate field name to the IRS name on the
 Form 8949.
 
 That way we can run a data check on the common data among the data
@@ -408,7 +408,7 @@ The output data fields will be (based on Form 8949):
                               $tax-year) {
 
         # guess delimiter from file extension?
-        my $delim = cvs-delim $filename;
+        my $delim = csv-delim $filename;
         my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim));
         my @txns = $parser.read-file($filename);
 
@@ -507,19 +507,22 @@ The output data fields will be (based on Form 8949):
     }
 }
 
-
-
-
+=begin comment
 
 grammar TXF-grammar {
     my @header-field-codes = <V A D>;
     my @record-field-codes = <T N C L P D $>;
 
+    token TOP { 
+        <.separation>
+        <header> \s* <record>+ 
+    }
+
     token header-field-code { @header-field-codes }
     token record-field-code { @record-field-codes }    
     token end-of-record     { '^' }
-    token header-field      { ^ <header-field-code> $<value>=\N* $ }
-    token record-field      { ^ <record-field-code> $<value>=\N* $ }
+    token header-field      { ^^ <header-field-code> $<value>=\N* $$ }
+    token record-field      { ^^ <record-field-code> $<value>=\N* $$ }
 
     token separation { \s* }
 
@@ -532,14 +535,9 @@ grammar TXF-grammar {
     # a record is a certain collection of fields possibly interspersed
     # with blank lines
     token record {
-        <record-field>Â
+        <record-field>?
     }
-
-    token TOP { 
-        <.separation>
-        <header> \s* <record>+ 
-    }
-
-
-
 }
+
+
+=end comment

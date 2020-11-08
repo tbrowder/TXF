@@ -74,11 +74,11 @@ if not $fnum and not $all {
 }
 
 if $fnum {
-    convert-cvs @f[$fnum], :$tax-year, :$date, :$debug;
+    convert-csv @f[$fnum], :$tax-year, :$date, :$debug;
     exit;
 }
 
 # $all must be true:
 for @f[1..5] -> $f {
-    convert-cvs $f, $tax-year, $date, :$debug;
+    convert-csv $f, $tax-year, $date, :$debug;
 }

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-unit module TXF::CVS2TXF;
+unit module TXF::CSV2TXF;
 
 class Transaction {
     # TODO why no num shares?
