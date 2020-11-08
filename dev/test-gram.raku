@@ -1,9 +1,9 @@
 #!/usr/bin/env raku
 
-use Grammar::Tracer;
 
 use lib <./lib>;
-use TXF::Grammar;
+use TXF::File;
+use Grammar::Tracer;
 
 # use the t/data/*txf file for input
 # use real data:
@@ -32,6 +32,6 @@ if 0 {
     say $g.parse: slurp($f);
 }
 
-my $m = TXF::Grammar.parse(slurp($f));
+my $m = TXF::File::File-grammar.parse(slurp($f));
 say $m.raku;
 #say $/<field>.raku;

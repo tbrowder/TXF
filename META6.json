@@ -17,7 +17,7 @@
   "provides": {
     "TXF": "lib/TXF.rakumod",
     "TXF::CSV2TXF": "lib/TXF/CSV2TXF.rakumod",
-    "TXF::Grammar": "lib/TXF/Grammar.rakumod"
+    "TXF::File": "lib/TXF/File.rakumod"
   },
   "resources": [
   ],

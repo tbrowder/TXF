@@ -29,7 +29,7 @@ jobs:
           # install and test if need be (includes [test-depends])
           sudo apt-get install -y libperl-dev libexcel-writer-xlsx-perl libspreadsheet-read-perl cpanminus
           sudo cpanm Spreadsheet::Reader::ExcelXML Spreadsheet::ParseXLSX
-          sudo apt-get install -y libcvs-dev
+          sudo apt-get install -y libcsv-dev
           zef install .
           #zef install --/test --test-depends --deps-only .
           zef install --/test App::Prove6
