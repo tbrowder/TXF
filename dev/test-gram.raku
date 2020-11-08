@@ -34,4 +34,4 @@ if 0 {
 
 my $m = TXF::Grammar.parse(slurp($f));
 say $m.raku;
-say $/.raku;
+#say $/<field>.raku;
