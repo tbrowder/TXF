@@ -8,7 +8,7 @@
   "depends": [
     "Text::CSV::LibCSV",
     "Config::TOML",
-    "Test::Utils"
+    "Text::Utils"
   ],
   "description": "Convert CSV files to TXF format for tax software import",
   "license": "Artistic-2.0",
