@@ -317,3 +317,192 @@ The output data fields will be (based on Form 8949):
 
 }
 
+=begin comment
+    my $FIRST-LINE = [
+        'Security', 'Trans type', 'Qty', 'Open date', 'Adj cost',
+        'Close date', 'Adj proceeds', 'Adj gain($)', 'Adj gain(%)',
+        'Term'].join(',');
+
+    my $TRANSACTION-TYPE = 'Trans type';
+
+    method name {
+        return "TD Ameritrade"
+    }
+
+    method buyDate(#$cls,
+                   %dict) {
+        #"""Returns date of transaction as datetime object."""
+        # Our input date format is MM/DD/YYYY.
+        my $date = %dict<Open date>;
+        return date2Date($date);
+        #return datetime.strptime(%dict<Open date>, '%m/%d/%Y')
+    }
+
+    method sellDate(#$cls,
+                    %dict) {
+        #"""Returns date of transaction as datetime object."""
+        # Our input date format is MM/DD/YYYY.
+        my $date = %dict<Close date>;
+        return date2Date($date);
+        #return datetime.strptime(dict['Close date'], '%m/%d/%Y')
+    }
+
+    method isShortTerm(#$cls,
+                       %dict) {
+        return %dict<Term> eq 'Short-term'
+    }
+
+    method symbol(#$cls,
+                  %dict) {
+        my $security = %dict<Security>;
+        if $security ~~ /^ .* '(' (.*) ')' $/ {
+            return ~$0
+        }
+        else {
+            my $s = %dict.Str;
+            die "Security symbol not found in: $s"
+        }
+
+        =begin comment
+        match = re.match('^.*\((.*)\)$', dict['Security'])
+        if match {
+            return match.group(1)
+        }
+        else {
+            die('Security symbol not found in: %s' % dict)
+        }
+        =end comment
+    }
+
+    method numShares(#$cls,
+                     %dict) {
+        return %dict<Qty>
+    }
+
+    method costBasis(#$cls,
+                     %dict) {
+        # Proceeds amount may include commas as thousand separators, which
+        # Decimal does not handle.
+        my $adjcost = %dict<Adj cost>;
+        $adjcost ~~ s:g/','//;
+        return $adjcost;
+        #return Decimal(dict['Adj cost'].replace(',', ''))
+    }
+
+    method saleProceeds(#$cls,
+                        %dict) {
+        # Proceeds amount may include commas as thousand separators, which
+        # Decimal does not handle.
+        my $adjproceeds = %dict<Adj proceeds>;
+        if not $adjproceeds {
+            die "Unknown adjproceeds '$adjproceeds'";
+        }
+
+        $adjproceeds ~~ s:g/','//;
+        return $adjproceeds;
+        #return Decimal(dict['Adj proceeds'].replace(',', ''))
+    }
+
+    method parseFileToTxnList(#$cls,
+                              $filename,
+                              $tax-year) {
+
+        # guess delimiter from file extension?
+        my $delim = csv-delim $filename;
+        my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim));
+        my @txns = $parser.read-file($filename);
+
+        if 0 {
+            # debugging
+            for @txns {
+                my $s = @($_).join(',');
+                say $s;
+            }
+            die "debug early exit";
+        }
+
+        my $line-num = 0;
+        my @txn-list = [];
+        # the header row
+        my @headers;
+        my $len;
+        for @txns -> $row {
+            ++$line-num;
+            if $line-num == 1 {
+                @headers = @($row); # an array of cells
+                $len = @headers.elems;
+                # make sure the headers are normalized
+                for 0..^$len -> $i {
+                    @headers[$i] = normalize-string @headers[$i];
+                }
+                if 1 {
+                    # debug
+                    say "{$filename.IO.basename}";
+                    for 0..^$len -> $i {
+                        print '|' if $i;
+                        print @headers[$i];
+                    }
+                    print "\n";
+                    die "DEBUG early exit";
+                }
+                next; # continue
+            }
+
+            my %txn-dict;
+            my @cells = @($row);
+            for 0..^$len -> $i {
+                my $header = @headers[$i];
+                my $val = @cells[$i];
+                $val = normalize-string $val;
+                %txn-dict{$header} = $val;
+            }
+
+            =begin comment
+            for i in range(0, len(names)):
+                %txn-dict[names[i]] = row[i]
+            }
+            =end comment
+
+            if %txn-dict<Security> eq 'Total:' {
+                # This is the summary line where the string 'Total:' appears in
+                # the first column, so we're done.
+                last; # break
+            }
+
+            my $curr-txn = Transaction.new;
+            $curr-txn.desc = "{self.numShares(%txn-dict)} shares {self.symbol(%txn-dict)}";
+
+            $curr-txn.buyDate      = self.buyDate(%txn-dict);
+            $curr-txn.buyDateStr   = txfDate($curr-txn.buyDate);
+            $curr-txn.costBasis    = self.costBasis(%txn-dict);
+            $curr-txn.sellDate     = self.sellDate(%txn-dict);
+            $curr-txn.sellDateStr  = txfDate($curr-txn.sellDate);
+            $curr-txn.saleProceeds = self.saleProceeds(%txn-dict);
+
+            #assert $curr-txn.sellDate >= $curr-txn.buyDate;
+            if self.isShortTerm(%txn-dict) {
+                # TODO(mbrukman): assert here that (sellDate - buyDate) <= 1 year
+                $curr-txn.entryCode = 321;  # "ST gain/loss - security"
+            }
+            else {
+                # TODO(mbrukman): assert here that (sellDate - buyDate) > 1 year
+                $curr-txn.entryCode = 323;  # "LT gain/loss - security"
+            }
+
+            if $tax-year and $curr-txn.sellDate.year ne $tax-year {
+                note qq:to/HERE/;
+                Warning: 'ignoring txn: "{$curr-txn.desc}" (line $line-num) as the sale is not from $tax-year
+                HERE
+                =begin comment
+                utils.Warning('ignoring txn: "%s" (line %d) as the sale is not from %d\n' %
+                              ($curr-txn.desc, $line-num, $tax-year));
+                =end comment
+                next; # continue
+            }
+
+            @txn-list.push($curr-txn);
+        }
+
+        return @txn-list
+    }
+}

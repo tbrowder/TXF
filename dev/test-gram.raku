@@ -1,7 +1,9 @@
 #!/usr/bin/env raku
 
+use Grammar::Tracer;
+
 use lib <./lib>;
-use TXF;
+use TXF::Grammar;
 
 # use the t/data/*txf file for input
 # use real data:
@@ -12,14 +14,24 @@ if not @*ARGS.elems {
     Usage: {$*PROGRAM.basename} go
 
     Code to test the TXF grammar, a WIP following JJ's
-    Raku Recipes
+                                    Raku Recipes
+
+    Using file '$f'.
     HERE
     exit;
 }
 
-=begin comment
-Code to test the TXF grammar, a WIP following JJ's
-Raku Recipes
-=end comment
+if 0 {
+    for $f.IO.lines {
+        say $_;
+    }
+}
 
+if 0 {
+    my $g = TXF::Grammar.new;
+    say $g.parse: slurp($f);
+}
 
+my $m = TXF::Grammar.parse(slurp($f));
+say $m.raku;
+say $/.raku;
