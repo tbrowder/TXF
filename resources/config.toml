@@ -1,18 +1,23 @@
 # This will be used if no other config file
 # is specified.
 
-tax-year = 2019
-broker   = "TD Ameritrade"
-map      = "map-td2irs-2019"
+tax-year    = 2019
+broker      = "TD Ameritrade"
+default-map = "map-tdameritrade-form849-2019"
 
 # Mapping from TD Ameritrade export csv file
 # to the IRS transaction class.
 #   key:   transaction class attr name
 #   value: csv column name
-[map-td2irs-2019]
-Descrip = "?"
-...
-
-
-
-
+[map-tdameritrade-form849-2019]
+a-Descrip  = "Security"
+b-DateAcq  = "Open Date"
+c-DateSold = "Date Sold"
+d-Proceeds = "Proceeds"
+e-Basis    = "Cost"
+f-Codes    = "Code"
+g-AmtAdj   = "Gain/Loss Adjustment"
+WS-line1   = "WS-line1"
+WS-line2   = "WS-line2"
+WS-line3   = "WS-line3"
+WS-line4   = "WS-line4"
