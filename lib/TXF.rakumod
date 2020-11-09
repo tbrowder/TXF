@@ -65,7 +65,7 @@ class TXF-file {
     has $.D is rw;
 
     has TXF-record @.records is rw;
-    
+
     method write-file($f, :$create, :$debug) {
         my $fh = open $f, :w, :create;
         for @.records -> $rec {
@@ -75,8 +75,8 @@ class TXF-file {
 
     method read-file($f, :$debug) {
         my $in-record   = 0;
-        my $has-headers = 0;  
-        my $num-headers = 0; # should have 3 
+        my $has-headers = 0;
+        my $num-headers = 0; # should have 3
         my $curr-rec    = 0; # hold the current record object
         my $lnum        = 0;
         LINE: for $f.IO.lines -> $line is copy {
@@ -92,11 +92,11 @@ class TXF-file {
                 # check error conditions
                 if not $in-record {
                     die "end of record flag without being in a record on line $lnum of file $f";
-                } 
+                }
                 if $has-headers {
                     # there should be a curr-rec
                     self.records.push: $curr-rec;
-                    $curr-rec = 0; 
+                    $curr-rec = 0;
                 }
                 $in-record = 0;
                 next LINE;
@@ -129,7 +129,7 @@ class TXF-file {
                 else {
                     die "unknown header flag $c on line $lnum of file $f";
                 }
-                ++$num-headers; # should have 3 
+                ++$num-headers; # should have 3
                 if $num-headers > 3 {
                     die "more than 3 header records with header flag $c on line $lnum of file $f";
                 }
@@ -137,7 +137,7 @@ class TXF-file {
             }
 
             #=======================================================
-            # now we must be in a transaction record 
+            # now we must be in a transaction record
             if not $curr-rec {
                 $curr-rec = TXF-record.new;
             }
@@ -146,7 +146,7 @@ class TXF-file {
             $field.id      = $c;
             $field.linenum = $lnum;
             $field.value   = $val;
-       
+
 
         }
 
@@ -258,10 +258,28 @@ sub convert-csv($f, $tax-year!, :$debug) is export {
 }
 
 sub get-txf-transactions($filename, :$debug) {
-    
+
 }
 
-sub get-csv-transactions($filename, :$debug) {
+sub check-field-map(%field-map) {
+}
+
+sub get-csv-transactions($filename,
+                         :$config     = "{%*ENV<HOME>}/.TXF/config.toml",
+                         :$config-key = 'default', # default is 'default'
+                         :$debug,
+                        ) is export {
+    # we need the map of standard fields to the input
+    # file's fields
+    my %field-map;
+    if $config.IO.f {
+        my %h = from-toml :file($config);
+        %field-map = %h{$config-key};
+        check-field-map %field-map;
+    }
+    else {
+        die "FATAL: No CSV field map found.";
+    }
 
 =begin comment
 
@@ -316,4 +334,3 @@ The output data fields will be (based on Form 8949):
 =end comment
 
 }
-

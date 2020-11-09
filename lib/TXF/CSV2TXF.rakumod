@@ -24,6 +24,11 @@ class Transaction {
     has      $.e-basis         is rw = 0;  # dollars (use IRS rounding rules)
     has      $.f-adjust-code   is rw = ''; # if any
     has      $.g-adjust-amount is rw = 0;  # dollars, if any (use IRS rounding rules)
+    # worksheet values
+    has      $.ws1 is rw;
+    has      $.ws2 is rw;
+    has      $.ws3 is rw;
+    has      $.ws4 is rw;
 
     # boxes for Form 8949
     # Part I - Short-term:

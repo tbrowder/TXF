@@ -1,4 +1,8 @@
-unit module TXF::File;
+unit class TXF::File;
+
+has $.V is rw;
+has $.A is rw;
+has $.D is rw;
 
 my @header-field-codes = <V A D>;
 my @record-field-codes = <T N C L P D $>;

@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/tbrowder/TXF/workflows/test/badge.svg)](https://github.com/tbrowder/TXF/actions)
+[![Actions Status](https://github.com/tbrowder/TXF/workflows/test-inline-perl5/badge.svg)](https://github.com/tbrowder/TXF/actions)
 
 NAME
 ====
