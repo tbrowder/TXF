@@ -186,9 +186,7 @@ sub csvhdrs2irs($csvfile --> Hash) {
     my @rows = $parser.read-file($csvfile);
     my @fields = @(@rows[0]);
     my $len = @fields.elems;
-
-    # make sure the headers are normalized before assembling
-    # into a check string
+    # make sure the headers are normalized before assembling into a check string
     my $fstring = '';
     for 0..^$len -> $i {
         @fields[$i] = normalize-string @fields[$i];
@@ -266,20 +264,76 @@ sub check-field-map(%field-map) {
 
 sub get-csv-transactions($filename,
                          :$config     = "{%*ENV<HOME>}/.TXF/config.toml",
-                         :$config-key = 'default', # default is 'default'
+                         :$config-key = 'default-map', # default is 'default-map'
                          :$debug,
                         ) is export {
-    # we need the map of standard fields to the input
-    # file's fields
-    my %field-map;
+    # we need the base config hash
+    my %config;
     if $config.IO.f {
-        my %h = from-toml :file($config);
-        %field-map = %h{$config-key};
-        check-field-map %field-map;
+        %config = from-toml :file($config);
     }
     else {
         die "FATAL: No CSV field map found.";
     }
+
+    # we need the map of standard fields to the input
+    # file's fields
+    my $map-key = %config{$config-key};
+    my %irs-csv-map = %config{$map-key};
+    # make sure we covered all required fields
+    # TODO complete the following sub:
+    check-field-map %irs-csv-map;
+    # get its inverse
+    my %csv-irs-map = %irs-csv-map.invert;
+
+    # some other necessary vars
+    my $tax-year = %config<tax-year>;
+    my $broker   = %config<broker>;
+
+    # read the input file
+    # guess delimiter from file extension?
+    my $delim = csv-delim $filename;
+    my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim), :has-headers);
+    my @rows = $parser.read-file($filename);
+    my @form8949;
+    for @rows.kv -> $i, $row {
+        my %cells = %($row);
+        # skip invalid rows
+        next if %cells<Ignore>:exists and %cells<Ignore>;
+
+        say "DEBUG ROW ==========================" if $debug;
+        for %cells.kv -> $k, $v is copy {
+            $v = normalize-string $v;
+            say "DEBUG: key: '$k'; value: '$v'";
+        }
+        last if $debug and $i > 3;
+
+        my $irs = F8949-transaction.new;
+        # for the transaction class object we need another mapping
+        # check for all required fields
+        
+        for %irs-csv-map.kv -> $irs-key, $csv-key {
+            if %cells{$csv-key}:exists {
+                my $value = %cells{$csv-key};
+                $irs.set-attr(:attr($irs-key), :$value); 
+            }
+            else {
+                die "FATAL: missing cvs key '$csv-key' at line {$i+1}";
+            }
+        }
+        $irs.finish-building: :$debug;
+        # put object in one of several arrays according to part and block
+
+    }
+
+    =begin comment
+    my $fstring = '';
+    for 0..^$len -> $i {
+        @fields[$i] = normalize-string @fields[$i];
+        $fstring ~= '|' if $i;
+        $fstring ~= @fields[$i];
+    }
+    =end comment
 
 =begin comment
 

@@ -1,0 +1,33 @@
+#!/usr/bin/env raku
+
+use lib <./lib>;
+use TXF;
+
+my $rdir = '/usr/local/git-private-repos/my-win10-docs/Personal/001-Taxes-Finance-Insurance/0-Tax-returns-and-info/2019/TDAmeritrade/basis';
+my $rfil = '2019-td-security-sales-corrected-in-yellow.csv';
+my $csvfil = "{$rdir}/{$rfil}";
+
+my $debug = 0;
+if not @*ARGS.elems {
+    say qq:to/HERE/;
+    Usage: {$*PROGRAM.basename} <csv-file> | go [debug]
+
+    Default is to use file '{$csvfil.IO.basename}' as input.
+    HERE
+    exit
+}
+
+for @*ARGS {
+    when /^d/ {
+        $debug = 1;
+    }
+    when /^g/ {
+        ; # ok
+    }
+    default {
+        die "FATAL: Unrecognized arg '$_'.";
+    }    
+}
+
+get-csv-transactions $csvfil, :$debug;
+

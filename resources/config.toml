@@ -3,13 +3,13 @@
 
 tax-year    = 2019
 broker      = "TD Ameritrade"
-default-map = "map-tdameritrade-form849-2019"
+default-map = "tdameritrade-form8949-2019"
 
 # Mapping from TD Ameritrade export csv file
 # to the IRS transaction class.
 #   key:   transaction class attr name
 #   value: csv column name
-[map-tdameritrade-form849-2019]
+[tdameritrade-form8949-2019]
 a-Descrip  = "Security"
 b-DateAcq  = "Open Date"
 c-DateSold = "Date Sold"
