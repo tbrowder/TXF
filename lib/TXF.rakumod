@@ -4,7 +4,9 @@ use Text::CSV::LibCSV;
 use Text::Utils :normalize-string;
 use Config::TOML;
 
+use TXF::Utils;
 use TXF::CSV2TXF;
+
 
 constant $END-RECORD  = '^';
 constant $TXF-VERSION = '042'; # TXF format version
@@ -207,44 +209,6 @@ sub csvhdrs2irs($csvfile --> Hash) {
 sub find-known-formats($fstring, $csvfile --> Hash) {
 }
 
-sub Date2date(Date $d --> Str) {
-    # convert a Date object to mm/dd/yyyy string format
-    return {sprintf "%02d/%02d/%04d", $d.month, $d.day, $d.year};
-}
-
-sub date2Date(Str $date --> Date) {
-    # date is expected in format: mm/dd/yyyy
-    #   but it may be in other, similar formats
-    # convert to and return a Date object
-    # TODO simplify and make more robust
-    my $dt;
-    my ($year, $month, $day) = <9999 01 01>;
-    if $date ~~ /(\d\d) '/' (\d\d) '/' (d\d\d\d) / {
-        $month = ~$0;
-        $day   = ~$1;
-        $year  = ~$2;
-    }
-    elsif $date ~~ /(\d\d\d\d) '-' (\d\d) '-' (d\d) / {
-        # the preferred ISO format
-        my $year  = ~$0;
-        my $month = ~$1;
-        my $day   = ~$2;
-    }
-    elsif $date ~~ /(\d\d\d\d) '/' (\d\d) '/' (d\d) / {
-        $year  = ~$0;
-        $month = ~$1;
-        $day   = ~$2;
-    }
-    elsif $date ~~ /(\d\d\d\d) '.' (\d\d) '.' (d\d) / {
-        $year  = ~$0;
-        $month = ~$1;
-        $day   = ~$2;
-    }
-    else {
-        note "Unexpected date string '$date', expected a variation of 'mm/dd/yyyy' format";
-    }
-    return Date.new: {sprintf "%04d-%02d-%02d", $year, $month, $day};
-}
 
 sub convert-txf($f, :$tax-year!, :$debug) is export {
     my Date $date = DateTime.now.Date;

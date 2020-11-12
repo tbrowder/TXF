@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+use TXF::Utils;
+
 unit module TXF::CSV2TXF;
 
-class F8949-transaction {
+class F8949-transaction is export {
     # why no num shares on the form?
     #   because the num shares are part of the description on IRS Form 8949
     has      $.a-desc          is rw = ''; # Form 8949 this includes number of shares
