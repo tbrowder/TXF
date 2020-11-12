@@ -10,6 +10,7 @@ default-map = "tdameritrade-form8949-2019"
 #   key:   transaction class attr name
 #   value: csv column name
 [tdameritrade-form8949-2019]
+# 8 mandatory fields
 a-Descrip  = "Security"
 b-DateAcq  = "Open Date"
 c-DateSold = "Date Sold"
@@ -17,7 +18,14 @@ d-Proceeds = "Proceeds"
 e-Basis    = "Cost"
 f-Codes    = "Code"
 g-AmtAdj   = "Gain/Loss Adjustment"
+box        = "Box"
+# 4 fields in some circumstances
 WS-line1   = "WS-line1"
 WS-line2   = "WS-line2"
 WS-line3   = "WS-line3"
 WS-line4   = "WS-line4"
+# TD Ameritrade particular
+shares     = "Shares Sold"
+symbol     = "Symbol"
+cusip      = "CUSIP"
+

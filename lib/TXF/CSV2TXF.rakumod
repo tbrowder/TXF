@@ -35,13 +35,23 @@ class F8949-transaction is export {
     # additional attrs to be calculated if possible
     has      $.symbol is rw;
     has      $.shares is rw;
+    has      $.cusip  is rw;
+    has      $.box    is rw;
 
     method finish-building(:$debug) {
+        # use the Descrip field to extract info unless provided
+        # by input fields
+        if $!shares and $!symbol {
+            # TD Ameritrade provides them
+            $!a-desc = "{$!shares} shares {$!symbol.uc}";
+            return;
+        }
+        # otherwise we have to extract the info from the description
     }
 
     method set-attr(:$attr!, :$value!, :$debug) {
         given $attr {
-            # 7 mandatory fields
+            # 8 mandatory fields
             when /^ a/ { $!a-desc = $value }
             when /^ b/ {
                 # need a Date object
@@ -51,15 +61,33 @@ class F8949-transaction is export {
                 # need a Date object
                 $!c-date-sold = date2Date $value 
             }
-            when /^ d/ { $!d-proceeds = $value }
-            when /^ e/ { $!e-basis = $value }
-            when /^ f/ { $!f-adjust-code = $value }
+            when /^ d/ { $!d-proceeds      = $value }
+            when /^ e/ { $!e-basis         = $value }
+            when /^ f/ { $!f-adjust-code   = $value }
             when /^ g/ { $!g-adjust-amount = $value }
+
             # 4 "optional" fields
             when /line1 $/ { $!ws1 = $value }
             when /line2 $/ { $!ws2 = $value }
             when /line3 $/ { $!ws3 = $value }
             when /line4 $/ { $!ws4 = $value }
+            # other
+            when /shares/ {
+                $!shares = $value
+            }
+            when /symbol/ {
+                $!symbol = $value
+            }
+            when /cusip/ {
+                $!cusip = $value
+            }
+            when /Box/ {
+                $!box = $value.comb.last.lc;
+                if $!box !~~ /abcdef/ {
+                    die "FATAL: Unexpected box value '{$!box}'";
+                } 
+            }
+
             default {
                 die "FATAL: Unrecognized attr '$attr'";
             }

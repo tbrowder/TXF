@@ -259,7 +259,7 @@ sub get-csv-transactions($filename,
     my $delim = csv-delim $filename;
     my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim), :has-headers);
     my @rows = $parser.read-file($filename);
-    my @form8949;
+    my @F8949-transactions;
     for @rows.kv -> $i, $row {
         my %cells = %($row);
         # skip invalid rows
@@ -268,26 +268,25 @@ sub get-csv-transactions($filename,
         say "DEBUG ROW ==========================" if $debug;
         for %cells.kv -> $k, $v is copy {
             $v = normalize-string $v;
-            say "DEBUG: key: '$k'; value: '$v'";
+            say "DEBUG: key: '$k'; value: '$v'" if $debug;
         }
         last if $debug and $i > 3;
 
-        my $irs = F8949-transaction.new;
+        my $ft = F8949-transaction.new;
         # for the transaction class object we need another mapping
         # check for all required fields
         
         for %irs-csv-map.kv -> $irs-key, $csv-key {
             if %cells{$csv-key}:exists {
                 my $value = %cells{$csv-key};
-                $irs.set-attr(:attr($irs-key), :$value); 
+                $ft.set-attr(:attr($irs-key), :$value); 
             }
             else {
                 die "FATAL: missing cvs key '$csv-key' at line {$i+1}";
             }
         }
-        $irs.finish-building: :$debug;
-        # put object in one of several arrays according to part and block
-
+        $ft.finish-building: :$debug;
+        @F8949-transactions.push: $ft;
     }
 
     =begin comment
