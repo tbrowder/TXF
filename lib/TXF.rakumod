@@ -7,7 +7,6 @@ use Config::TOML;
 use TXF::Utils;
 use TXF::CSV2TXF;
 
-
 constant $END-RECORD  = '^';
 constant $TXF-VERSION = '042'; # TXF format version
 
@@ -226,8 +225,7 @@ sub get-txf-transactions($filename, :$debug) {
 sub check-field-map(%field-map) {
 }
 
-multi write-f8949-pdf(F8949-transaction @F8949-transactions, 
-#multi write-f8949-pdf(@F8949-transactions, 
+multi write-f8949-pdf(@f8949, 
     :$debug) is export {
 
     # we write a separate F8949 for each Part I and Part II and their individual
@@ -241,17 +239,17 @@ multi write-f8949-pdf(F8949-transaction @F8949-transactions,
     my @f; # p2boxF; # shouldn't have any for the author
 
     if $debug {
-        my $n = @F8949-transactions.elems;
-        say "DEBUG: \@F8949-transactions.elems = $n";
+        my $n = @f8949.elems;
+        say "DEBUG: \@f8949.elems = $n";
     }
 
-    for @F8949-transactions -> $ft {
+    for @f8949 -> $ft {
         say "DEBUG: \$ft is an instance of class {$ft.raku}" if $debug;
     }
 
     =begin comment
     # separate into parts
-    for @F8949-transactions -> $ft {
+    for @f8949 -> $ft {
         say $ft.raku if $debug;
         =begin comment
         if $ft.box eq 'a' {
@@ -284,21 +282,19 @@ multi write-f8949-pdf(F8949-transaction @F8949-transactions,
 
 }
 
-#multi write-f8949-pdf(F8949-transaction @F8949-transactions, 
-multi write-f8949-pdf(@F8949-transactions, 
-                      :$box!, :$debug) {
+multi write-f8949-pdf(@f8949, 
+                      :$box! is copy, :$debug) {
     my $part = $box ~~ /:i a|b|c/ ?? 'I' !! 'II';
-    my $b = $box.uc; 
-    my $fname = "F8949-Part{$part}-Box{$b}.pdf";
+    $box.= uc; 
+    my $fname = "F8949-Part{$part}-Box{$box}.pdf";
 
-    my @ft = @F8949-transactions;
-    if not @ft.elems {
+    if not @f8949.elems {
         say "No Part $part, Box $box transactions found.";
         return;
     }
 
     my $fh = open $fname, :w;
-    for @ft -> $ft {
+    for @f8949 -> $ft {
     }
     $fh.close;
     say "See F8949 file: $fname";

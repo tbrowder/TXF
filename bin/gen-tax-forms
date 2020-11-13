@@ -13,6 +13,11 @@ if not @*ARGS.elems {
     say qq:to/HERE/;
     Usage: {$*PROGRAM.basename} <csv-file> | go [debug]
 
+    Uses the input CSV file and produces IRS products
+    for the individual investor. Output includes:
+        Forms 8949
+        Schedule D
+
     Default is to use file '{$csvfil.IO.basename}' as input.
     HERE
     exit
@@ -30,6 +35,5 @@ for @*ARGS {
     }    
 }
 
-my F8949-transaction @ft = get-csv-transactions $csvfil, :$debug;
-#my @ft = get-csv-transactions $csvfil, :$debug;
+my @ft = get-csv-transactions $csvfil, :$debug;
 write-f8949-pdf @ft, :$debug;
