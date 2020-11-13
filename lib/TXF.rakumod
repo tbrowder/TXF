@@ -226,10 +226,90 @@ sub get-txf-transactions($filename, :$debug) {
 sub check-field-map(%field-map) {
 }
 
+multi write-f8949-pdf(F8949-transaction @F8949-transactions, 
+#multi write-f8949-pdf(@F8949-transactions, 
+    :$debug) is export {
+
+    # we write a separate F8949 for each Part I and Part II and their individual
+    # boxes A-F. Output file names will be:
+    #    taxyear-F8949-PartX-BoxX.pdf
+    my @a; # p1boxA;
+    my @b; # p1boxB;
+    my @c; # p1boxC; # shouldn't have any for the author
+    my @d; # p2boxD;
+    my @e; # p2boxE;
+    my @f; # p2boxF; # shouldn't have any for the author
+
+    if $debug {
+        my $n = @F8949-transactions.elems;
+        say "DEBUG: \@F8949-transactions.elems = $n";
+    }
+
+    for @F8949-transactions -> $ft {
+        say "DEBUG: \$ft is an instance of class {$ft.raku}" if $debug;
+    }
+
+    =begin comment
+    # separate into parts
+    for @F8949-transactions -> $ft {
+        say $ft.raku if $debug;
+        =begin comment
+        if $ft.box eq 'a' {
+            @a.push: $ft;
+        }
+        elsif $ft.box eq 'b' {
+            @b.push: $ft;
+        }
+        elsif $ft.box eq 'c' {
+            @c.push: $ft;
+        }
+        elsif $ft.box eq 'd' {
+            @d.push: $ft;
+        }
+        elsif $ft.box eq 'e' {
+            @e.push: $ft;
+        }
+        elsif $ft.box eq 'f' {
+            @f.push: $ft;
+        }
+        =end comment
+    }
+    write-f8949-pdf @a, :box<a>, :$debug;
+    write-f8949-pdf @b, :box<b>, :$debug;
+    write-f8949-pdf @c, :box<c>, :$debug;
+    write-f8949-pdf @d, :box<d>, :$debug;
+    write-f8949-pdf @e, :box<e>, :$debug;
+    write-f8949-pdf @f, :box<f>, :$debug;
+    =end comment
+
+}
+
+#multi write-f8949-pdf(F8949-transaction @F8949-transactions, 
+multi write-f8949-pdf(@F8949-transactions, 
+                      :$box!, :$debug) {
+    my $part = $box ~~ /:i a|b|c/ ?? 'I' !! 'II';
+    my $b = $box.uc; 
+    my $fname = "F8949-Part{$part}-Box{$b}.pdf";
+
+    my @ft = @F8949-transactions;
+    if not @ft.elems {
+        say "No Part $part, Box $box transactions found.";
+        return;
+    }
+
+    my $fh = open $fname, :w;
+    for @ft -> $ft {
+    }
+    $fh.close;
+    say "See F8949 file: $fname";
+
+}
+
 sub get-csv-transactions($filename,
                          :$config     = "{%*ENV<HOME>}/.TXF/config.toml",
                          :$config-key = 'default-map', # default is 'default-map'
                          :$debug,
+#                         --> List
                         ) is export {
     # we need the base config hash
     my %config;
@@ -260,26 +340,31 @@ sub get-csv-transactions($filename,
     my Text::CSV::LibCSV $parser .= new(:auto-decode('utf8'), :delimiter($delim), :has-headers);
     my @rows = $parser.read-file($filename);
     my @F8949-transactions;
+
     for @rows.kv -> $i, $row {
         my %cells = %($row);
         # skip invalid rows
         next if %cells<Ignore>:exists and %cells<Ignore>;
+        # skip empty rows
+        next if %cells<Security>:exists and not %cells<Security>;
 
         say "DEBUG ROW ==========================" if $debug;
         for %cells.kv -> $k, $v is copy {
             $v = normalize-string $v;
             say "DEBUG: key: '$k'; value: '$v'" if $debug;
         }
-        last if $debug and $i > 3;
+        last if $debug > 1 and $i > 3;
 
         my $ft = F8949-transaction.new;
         # for the transaction class object we need another mapping
         # check for all required fields
         
         for %irs-csv-map.kv -> $irs-key, $csv-key {
+            say "DEBUG: checking for irs/csv keys '$irs-key' and '$csv-key'..." if $debug;
             if %cells{$csv-key}:exists {
                 my $value = %cells{$csv-key};
                 $ft.set-attr(:attr($irs-key), :$value); 
+                say "  setting irs key to value '$value'" if $debug;
             }
             else {
                 die "FATAL: missing cvs key '$csv-key' at line {$i+1}";
@@ -289,14 +374,7 @@ sub get-csv-transactions($filename,
         @F8949-transactions.push: $ft;
     }
 
-    =begin comment
-    my $fstring = '';
-    for 0..^$len -> $i {
-        @fields[$i] = normalize-string @fields[$i];
-        $fstring ~= '|' if $i;
-        $fstring ~= @fields[$i];
-    }
-    =end comment
+    return @F8949-transactions;
 
 =begin comment
 

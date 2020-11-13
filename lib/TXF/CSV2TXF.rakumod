@@ -16,7 +16,7 @@ use TXF::Utils;
 
 unit module TXF::CSV2TXF;
 
-class F8949-transaction is export {
+our class F8949-transaction is export {
     # why no num shares on the form?
     #   because the num shares are part of the description on IRS Form 8949
     has      $.a-desc          is rw = ''; # Form 8949 this includes number of shares
@@ -46,6 +46,9 @@ class F8949-transaction is export {
             $!a-desc = "{$!shares} shares {$!symbol.uc}";
             return;
         }
+        else {
+            die "FATAL: Do not know stock symbol and number of shares.";
+        }
         # otherwise we have to extract the info from the description
     }
 
@@ -53,7 +56,7 @@ class F8949-transaction is export {
         given $attr {
             # 8 mandatory fields
             when /^ a/ { $!a-desc = $value }
-            when /^ b/ {
+            when /^ 'b-'/ {
                 # need a Date object
                 $!b-date-acquired = date2Date $value 
             }
@@ -81,9 +84,17 @@ class F8949-transaction is export {
             when /cusip/ {
                 $!cusip = $value
             }
-            when /Box/ {
-                $!box = $value.comb.last.lc;
-                if $!box !~~ /abcdef/ {
+            when /box/ {
+                if not $value {
+                    die "FATAL: Unexpected empty value for 'Box'";
+                }
+                my $v = $value.comb.tail.lc;
+                note "DEBUG: value of 'box' is '{$v}'" if $debug;
+                
+                $!box = $v;
+                say "DEBUG: value of 'box' is '{$!box}'" if $debug;
+                #if $!box !~~ /abcdef/ {
+                if 'abcde' !~~ /$v/ {
                     die "FATAL: Unexpected box value '{$!box}'";
                 } 
             }
