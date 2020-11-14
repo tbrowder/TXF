@@ -1,8 +1,10 @@
+form: f8949                                # key + 1 arg
 page: 1                                    # key + 1 arg
 #=================
 # row:     id lly ury|h:val                # key + 3 args
 #   field: id llx urx|w:val                # key + 3 args
 # box:     id llx lly urx|w:val ury|h:val  # key + 5 args
+# repeat: line1 r:13 dy:-24                # key + 2 args
 
 # 1 data line of two columns (fields)
 row: row0 684 708

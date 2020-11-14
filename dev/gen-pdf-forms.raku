@@ -15,7 +15,9 @@ my $ofil  = "/tmp/f8949-overlay.pdf";
 my $ofil2 = "/tmp/f1040sd-overlay.pdf";
 
 # form description files
-my $f8949 = './f8949.txt';
+my $f8949-data   = './f8949.data';
+my $f1040sd-data = './f1040sd.data';
+
 use lib <../lib>;
 use TXF::IRS-Forms;
 
@@ -31,7 +33,15 @@ if not @*ARGS.elems {
     exit;
 }
 
-my $form = get-boxes $f8949;
+my $debug = 0;
+for @*ARGS {
+    when /^d/ {
+        $debug = 1;
+    }
+}
+
+my $f8949   = get-boxes $f8949-data, :form-id<f8949>, :$debug;
+#my $f1040sd = get-boxes $f1040sd-data, :form-id<f1040sd>, :$debug;
 
 exit;
 
@@ -97,14 +107,17 @@ $pdf.save-as($ofil);
 say "See file '$ofil'";
 
 #### SUBROUTINES ####
-sub write-f8949-p1 {
+sub write-f8949-p1(:$debug) is export {
 }
 
-sub get-boxes($file) {
+sub get-boxes($file, 
+              :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
+              :$debug,
+             ) is export {
     # read box data for each form and page
     # current objects
     # return a Form object
-    my $form = Form.new :id<f8949>;
+    my $form = Form.new: :id($form-id);
 
     my $page;
     my $box;
@@ -129,6 +142,12 @@ sub get-boxes($file) {
             $arg3 = ~$4 if $4;
             $arg4 = ~$5 if $5;
             given $key {
+                when /form/ {
+                    # the id MUST be the same as in $form
+                    if $id ne $form.id {
+                        die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
+                    }
+                }
                 when /page/  {
                     # a new page to add to the existing form
                     $page = Page.new: :$id;
