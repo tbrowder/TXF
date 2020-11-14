@@ -16,25 +16,27 @@ box: box3 50,519 58,h:8
 
 # 14 transaction lines, each of 8 columns (24 points between baselines)
 row: line1 420 h:24
-  field: box1 36 173
-  field: box2 173 223
-  field: box3 223 273
-  field: box4 273 338
-  field: box5 338 403
-  field: box6 403 446
-  field: box7 446 511
-  field: box8 511 576
+  field: a 36 173
+  field: b 173 223
+  field: c 223 273
+  field: d 273 338
+  field: e 338 403
+  field: f 403 446
+  field: g 446 511
+  field: h 511 576
+
+repeat: line1 x:13 dy:-24
 
 # 1 total line of 4 columns
 row: total 61 109
-  field: box4 273 338
-  field: box5 338 403
-  field: box7 446 511
-  field: box8 511 576
+  field: d 273 338
+  field: e 338 403
+  field: g 446 511
+  field: h 511 576
 
 # ("Part II")
 #page: 2
 #==================
 
-# same layout as page 1 but some differing y coords
+# same layout as page 1 but with y coords shifted by dy=N
 
