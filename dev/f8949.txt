@@ -25,7 +25,7 @@ row: line1 420 h:24
   field: g 446 511
   field: h 511 576
 
-repeat: line1 x:13 dy:-24
+repeat: line1 r:13 dy:-24
 
 # 1 total line of 4 columns
 row: total 61 109
