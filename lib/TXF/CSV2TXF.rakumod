@@ -39,6 +39,9 @@ our class F8949-transaction is export {
     has      $.box    is rw;
 
     method finish-building(:$debug) {
+        # fill in worksheet line values as necessary
+        # WS line 1 is same as reported basis
+        
         # use the Descrip field to extract info unless provided
         # by input fields
         if $!shares and $!symbol {

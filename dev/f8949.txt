@@ -1,0 +1,40 @@
+page: 1                                    # key + 1 arg
+#=================
+# row:     id lly ury|h:val                # key + 3 args
+#   field: id llx urx|w:val                # key + 3 args
+# box:     id llx lly urx|w:val ury|h:val  # key + 5 args
+
+# 1 data line of two columns (fields)
+row: row0 684 708
+  field: name 36 360
+  field: ssan 360 708
+
+# 3 boxes for selecting one choice of A, B, or C
+box: box1 50,543 58,h:8
+box: box2 50,531 58,h:8
+box: box3 50,519 58,h:8
+
+# 14 transaction lines, each of 8 columns (24 points between baselines)
+row: line1 420 h:24
+  field: box1 36 173
+  field: box2 173 223
+  field: box3 223 273
+  field: box4 273 338
+  field: box5 338 403
+  field: box6 403 446
+  field: box7 446 511
+  field: box8 511 576
+
+# 1 total line of 4 columns
+row: total 61 109
+  field: box4 273 338
+  field: box5 338 403
+  field: box7 446 511
+  field: box8 511 576
+
+# ("Part II")
+#page: 2
+#==================
+
+# same layout as page 1 but some differing y coords
+
