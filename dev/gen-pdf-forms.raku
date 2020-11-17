@@ -7,65 +7,85 @@ use PDF::Content::Page :PageSizes;
 use PDF::Content::Font::CoreFont;
 constant CoreFont = PDF::Content::Font::CoreFont;
 
-my $pdf = PDF::API6.new;
 
-my $ifil  = "../irs-forms/f8949.pdf"; # two pages
-my $ifil2 = "../irs-forms/f1040sd.pdf"; # two pages
-my $ofil  = "/tmp/f8949-overlay.pdf";
-my $ofil2 = "/tmp/f1040sd-overlay.pdf";
+constant $i8949   = "../irs-forms/f8949.pdf";   # two pages
+constant $i1040sd = "../irs-forms/f1040sd.pdf"; # two pages
+my $o8949   = "/tmp/f8949-overlay.pdf";
+my $o1040sd = "/tmp/f1040sd-overlay.pdf";
 
 # form description files
-my $f8949-data   = './f8949.data';
-my $f1040sd-data = './f1040sd.data';
+constant $f8949-data   = './f8949.data';
+constant $f1040sd-data = './f1040sd.data';
 
 use lib <../lib>;
 use TXF::IRS-Forms;
 
 if not @*ARGS.elems {
     say qq:to/HERE/;
-    Usage: {$*PROGRAM.IO.basename} 1 | 2 [debug]
+    Usage: {$*PROGRAM.IO.basename} go | test [blank debug]
 
-    Uses file 1 ($ifil)
-      or
-         file 2 ($ifil2)
-    and generates a filled form for tweaking cell coords.
+    Uses file 1 ($i8949)
+      and
+         file 2 ($i1040sd)
+      plus data from 
+         file 3 ($f8949-data)
+      and
+         file 4 ($f1040sd-data)
+    and generates filled forms.
+
+    The 'test' mode outlines the target cells for
+    tweaking cell dimensions.
+
+    The 'blank' option uses blank paper instead of
+    an existing form.
     HERE
     exit;
 }
 
+my $test  = 0;
+my $blank = 0;
 my $debug = 0;
 for @*ARGS {
     when /^d/ {
         $debug = 1;
     }
+    when /^t/ {
+        $test = 1;
+    }
+    when /^b/ {
+        $blank = 1;
+    }
 }
 
-my $f8949   = get-boxes $f8949-data, :form-id<f8949>, :$debug;
-#my $f1040sd = get-boxes $f1040sd-data, :form-id<f1040sd>, :$debug;
+my $f8949   = get-form-data $f8949-data, :form-id<f8949>, :$debug;
+my $f1040sd = get-form-data $f1040sd-data, :form-id<f1040sd>, :$debug;
+
+if not $test {
+    say "NOTE: The real data handling is not yet ready. Use the test mode.";
+    exit;
+}
+
+my $name = "Thomas M. Jr. and Lauren L. Browder";
+my $ssan = "999-99-9999";
+
+write-form-test :form-data($f8949), :$blank, :$debug;
 
 exit;
 
+if 0 {
 # Open an existing PDF file
-$pdf .= open($ifil);
-
+my $pdf = PDF::API6.new;
+$pdf .= open($i8949);
 # Add a blank page
 #my $page = $pdf.add-page();
-
 # Retrieve an existing page
 my $page1 = $pdf.page(1);
 my $page2 = $pdf.page(2);
-
 # Set the default page size for all pages
 $pdf.media-box = Letter;
-
 # Use a standard PDF core font
 #my CoreFont $font = $pdf.core-font('Helvetica-Bold');
 my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
-
-# Add some text to the page
-# page 1 blocks A
-#               B
-#               C
 $page1.text: {
     .font = $font, 9;
     # line 1, col 1, (of 14), y increment 24 points
@@ -75,45 +95,35 @@ $page1.text: {
     .say('10/12/2019');
     .text-position = 226, 420+2;
     .say('07/22/2000');
-
     .text-position = 35, 396+2;
     .say('100 sh XYZ');
-
     .text-position = 35, 374;
     .say('100 sh XYZ');
-
     .text-position = 35, 350;
     .say('100 sh XYZ');
-
 }
 $page2.text: {
     .font = $font, 9;
-
     .text-position = 35, 458;
     .say('100 sh XYZ');
-
     .text-position = 35, 434;
     .say('100 sh XYZ');
-
     .text-position = 35, 410;
     .say('100 sh XYZ');
-
     .text-position = 35, 386;
     .say('100 sh XYZ');
 }
-
 # Save the new PDF
-$pdf.save-as($ofil);
-say "See file '$ofil'";
-
-#### SUBROUTINES ####
-sub write-f8949-p1(:$debug) is export {
+$pdf.save-as($o8949);
+say "See file '$o8949'";
 }
 
-sub get-boxes($file, 
-              :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
-              :$debug,
-             ) is export {
+
+#### SUBROUTINES ####
+sub get-form-data($file, 
+                  :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
+                  :$debug,
+                 ) is export {
     # read box data for each form and page
     # current objects
     # return a Form object
@@ -225,4 +235,121 @@ sub get-boxes($file,
     }
 
     return $form;
-}
+} # sub get-form-data
+
+# need some pdf subs for common tasks:
+#   write text to a position x,y
+#     with varied justification, font, font size
+#   outline a cell with red lines
+#   write text in a box
+#   write a paragraph of text with justification
+multi sub outline-box(
+    $page, # a PDF page object 
+    $llx, $lly, $urx, $ury, 
+    :@color   = [1, 0, 0], # rgb decimal red
+    :$linewidth = 1.0,
+    :$debug,
+    ) is export {
+
+    use PDF::Content::Color :rgb;
+    my $gfx = $page.gfx;
+    $gfx.Save;
+    $gfx.StrokeColor = rgb(@color[0..2]);
+    $gfx.Rectangle($llx, $lly, $urx, $ury);
+    $gfx.paint: :stroke;
+    $gfx.Restore;    
+} # sub outline-box
+
+multi sub fill-box(
+    $page, # a PDF page object 
+    $llx, $lly, $urx, $ury, 
+    :@color   = [1, 0, 0], # rgb decimal red
+    :$debug,
+    ) is export {
+
+    use PDF::Content::Color :rgb;
+    my $gfx = $page.gfx;
+    $gfx.Save;
+    $gfx.FillColor = rgb(@color[0..2]);
+    $gfx.Rectangle($llx, $lly, $urx, $ury);
+    $gfx.paint: :fill;
+    $gfx.Restore;    
+} # sub fill-box
+
+multi sub write-text(
+    $page, # a PDF page object 
+    $llx, $lly, $urx, $ury, 
+    :$text!,
+    :$halign = 'left',
+    :$valign = 'bottom',
+    :$font-size = 9,
+    :$font = 'Helvetica',
+    :$debug,
+    ) is export {
+
+
+
+} # sub write-text
+
+sub write-form-test(
+    :$form-data!, # a form desciption class object
+    :$blank!,     # if true, use blank paper instead
+    :$debug) is export {
+
+    # Open an existing PDF file
+    my $pdf = PDF::API6.new;
+
+    # assumes two-page forms for now
+    my ($page1, $page2);
+    
+    if $blank {
+        # Add blank pages
+        $page1 = $pdf.add-page();
+        $page2 = $pdf.add-page();
+    }
+    else {
+        # Retrieve existing pages
+        $pdf .= open($i8949);
+        $page1 = $pdf.page(1);
+        $page2 = $pdf.page(2);
+    }
+
+    # Set the default page size for all pages
+    $pdf.media-box = Letter;
+    # Use a standard PDF core font
+    my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
+    my $font-size = 9;
+    $page1.text: {
+        .font = $font, 9;
+        # line 1, col 1, (of 14), y increment 24 points
+        .text-position = 35, 420+2;
+        .say('100 sh XYZ');
+        .text-position = 176, 420+2;
+        .say('10/12/2019');
+        .text-position = 226, 420+2;
+        .say('07/22/2000');
+        .text-position = 35, 396+2;
+        .say('100 sh XYZ');
+        .text-position = 35, 374;
+        .say('100 sh XYZ');
+        .text-position = 35, 350;
+        .say('100 sh XYZ');
+    }
+    $page2.text: {
+        .font = $font, 9;
+        .text-position = 35, 458;
+        .say('100 sh XYZ');
+        .text-position = 35, 434;
+        .say('100 sh XYZ');
+        .text-position = 35, 410;
+        .say('100 sh XYZ');
+        .text-position = 35, 386;
+        .say('100 sh XYZ');
+    }
+
+    # Save the new PDF
+    $o8949.IO.chmod: 0o667;
+    $pdf.save-as($o8949);
+    say "See file '$o8949'";
+
+} # sub write-form-test
