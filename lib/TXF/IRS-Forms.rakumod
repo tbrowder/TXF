@@ -1,5 +1,6 @@
 unit module TXF::IRS-Forms;
 
+=begin comment
 role Point is export {
     has $.x is rw;
     has $.y is rw;
@@ -12,19 +13,115 @@ class Box does Point is export {
     method w { return $!ur.x - $!ll.x; }
     method h { return $!ur.y - $!ll.y; }
 }
+=end comment
+
+class Box is export {
+    has $.id  is rw;
+    has $.llx is rw;
+    has $.lly is rw;
+
+    # must define one of the two:
+    has $.urx is rw;
+    has $.w   is rw;
+    # must define one of the two:
+    has $.ury is rw;
+    has $.h   is rw;
+
+    # special override methods:
+    # setters
+    method set-urx($v) {
+        $!urx = $v;
+        $!w   = $!urx - $!llx;
+    }
+    method set-w($v) {
+        $!w   = $v;
+        $!urx = $!llx + $!w;
+    }
+    method set-ury($v) {
+        $!ury = $v;
+        $!h   = $!ury - $!lly;
+    }
+    method set-h($v) {
+        $!h   = $v;
+        $!ury = $!lly + $!h;
+    }
+    method finish {
+        # h vs ury
+        if $!h {
+            $!ury = $!lly + $!h;
+        }
+        elsif $!ury {
+            $!h   = $!ury - $!lly;
+        }
+        # w vs urx
+        if $!w {
+           $!urx = $!llx + $!w;
+        }
+        elsif $!urx {
+           $!w   = $!urx - $!llx;
+        }
+    }
+}
 
 class Field is export {
     has $.id  is rw;
+    # must define:
     has $.llx is rw;
+
+    # must define one of the two:
+    has $.urx is rw;
     has $.w   is rw;
-    has $.lrx is rw;
+
+    # special override methods:
+    # setters
+    method set-urx($v) {
+        $!urx = $v;
+        $!w   = $!urx - $!llx;
+    }
+    method set-w($v) {
+        $!w   = $v;
+        $!urx = $!llx + $!w;
+    }
+    method finish {
+        # w vs urx
+        if $!w {
+           $!urx = $!llx + $!w;
+        }
+        elsif $!urx {
+           $!w   = $!urx - $!llx;
+        }
+    }
 }
 
 class Row is export {
     has $.id  is rw;
+    # must define:
     has $.lly is rw;
+
+    # must define one of the two:
     has $.ury is rw;
     has $.h   is rw;
+
+    # special override methods:
+    # setters
+    method set-ury($v) {
+        $!ury = $v;
+        $!h   = $!ury - $!lly;
+    }
+    method set-h($v) {
+        $!h   = $v;
+        $!ury = $!lly + $!h;
+    }
+    method finish {
+        # h vs ury
+        if $!h {
+            $!ury = $!lly + $!h;
+        }
+        elsif $!ury {
+            $!h   = $!ury - $!lly;
+        }
+    }
+
     # left to right => 8 id keys a..h
     has Field %.fields is rw;
 }
