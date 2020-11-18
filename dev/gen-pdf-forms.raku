@@ -139,6 +139,7 @@ sub get-form-data($file,
         next if $line !~~ /\S/;
         # remove commas, replace with spaces
         $line ~~ s:g/','/ /;
+        say "DEBUG: line: $line" if $debug;
         if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + 1 arg
                        [ \h+ (\S+) \h+ (\S+)       # key + 3 args
                           [ \h+ (\S+) \h+ (\S+) ]? # key + 5 args
@@ -146,11 +147,12 @@ sub get-form-data($file,
             # this ought to match all input
             my $key = ~$0;
             my $id  = ~$1;
-            my ($arg1, $arg2, $arg3, $arg4);
-            $arg1 = ~$2 if $2;
-            $arg2 = ~$3 if $3;
-            $arg3 = ~$4 if $4;
-            $arg4 = ~$5 if $5;
+            my ($arg1, $arg2, $arg3, $arg4, $arg5);
+            $arg1 = $id;
+            $arg2 = ~$2 if $2;
+            $arg3 = ~$3 if $3;
+            $arg4 = ~$4 if $4;
+            $arg5 = ~$5 if $5;
             given $key {
                 when /form/ {
                     # the id MUST be the same as in $form
@@ -167,9 +169,20 @@ sub get-form-data($file,
                     # a new row to add to the existing page
                     $row = Row.new: :$id;
                     $page.rows{$row.id} = $row;
-                    # TODO
                     # fill its attributes
                     # row: id lly ury|h:val  # key + 3 args
+                    say "DEBUG: checking row lly ($arg3)" if $debug;
+                    $row.lly = $arg2;
+                    if $arg3 ~~ /'h:' (\S+) / {
+                        say "DEBUG: checking row h ($arg3)" if $debug;
+                        $row.h = ~$0;
+                    }
+                    else {
+                        say "DEBUG: checking row ury ($arg3)" if $debug;
+                        $row.ury = $arg3;
+                        note "DEBUG: dumping row" if $debug;
+                        say $row.raku if $debug;
+                    }
                 }
                 when /repeat/ {
                     #          tmpl times delta-y
@@ -180,29 +193,31 @@ sub get-form-data($file,
                     elsif $id ne 'line1' {
                         die "FATAL: Repeat row '$id' is not 'line1' as expected";
                     }
-                    my $s = "$arg1 $arg2";
+                    my $s = "$arg2 $arg3";
                     if $s ~~ /\h* 'r:' (\d+) \h+ 'dy:' (<[+-]>? \d+) / {
                         my $times = +$0;
                         my $dy    = +$1;
-                        my $nf = $row.fields.elems;
-                        my $y = $row.lly;
+                        my $nf  = $row.fields.elems;
+                        my $lly = $row.lly;
                         for 2..^$times -> $n {
-                            $y += $dy; # currently we expect the dy value to be negative for succeeding rows
+                            $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
                             my $rid = "line$n";
                             my $nr = Row.new: :id($rid);
+                            # TODO
                             # update the new row's attributes
+
+                            
                             for $row.fields.keys.sort -> $k {
                                 # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
                                 # get the master row's corresponding field's x values
                                 my $llx = $row.fields{$k}.llx;
-                                my $lrx = $row.fields{$k}.lrx;
-                                my $f = Field.new: :id($k), :$llx, :$lrx;
+                                my $urx = $row.fields{$k}.urx;
+                                my $f = Field.new: :id($k), :$llx, :$urx;
                                 $nr.fields{$k} = $f;
                                 # TODO
                                 # update the new field's attributes
                             }
                         }
-
                     }
                     else {
                         die "FATAL: Unexpected format on a 'repeat' line: '$s'";
@@ -212,24 +227,40 @@ sub get-form-data($file,
                     # a new field to add to the existing row
                     $field = Field.new: :$id;
                     $row.fields{$field.id} = $field;
-                    # TODO
                     # fill its attributes
                     #   field: id llx urx|w:val # key + 3 args
+                    $field.llx = $arg2;
+                    if $arg3 ~~ /'w:' (\S+) / {
+                        $field.w = ~$0;
+                    }
+                    else {
+                        $field.urx = $arg3;
+                    }
                 }
                 when /box/   {
                     # a new box to add to the existing page
                     $box = Box.new: :$id;
                     $page.boxes{$box.id} = $box;
-                    # TODO
                     # fill its attributes
                     # box: id llx lly urx|w:val ury|h:val  # key + 5 args
+                    $box.llx = $arg2;
+                    $box.lly = $arg3;
+                    if $arg3 ~~ /'w:' (\S+) / {
+                        $box.w = ~$0;
+                    }
+                    else {
+                        $box.urx = $arg3;
+                    }
+                    if $arg4 ~~ /'h:' (\S+) / {
+                        $box.h = ~$0;
+                    }
+                    else {
+                        $box.ury = $arg4;
+                    }
                 }
                 default {
                     die "FATAL: Unknown key '$key'";
                 }
-            }
-
-            if $key = 'form' {
             }
         }
         else {
