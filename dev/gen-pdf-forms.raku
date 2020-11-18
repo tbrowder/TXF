@@ -167,6 +167,7 @@ sub get-form-data($file,
                     # a new row to add to the existing page
                     $row = Row.new: :$id;
                     $page.rows{$row.id} = $row;
+                    # TODO
                     # fill its attributes
                     # row: id lly ury|h:val  # key + 3 args
                 }
@@ -197,6 +198,7 @@ sub get-form-data($file,
                                 my $lrx = $row.fields{$k}.lrx;
                                 my $f = Field.new: :id($k), :$llx, :$lrx;
                                 $nr.fields{$k} = $f;
+                                # TODO
                                 # update the new field's attributes
                             }
                         }
@@ -205,12 +207,12 @@ sub get-form-data($file,
                     else {
                         die "FATAL: Unexpected format on a 'repeat' line: '$s'";
                     }
-
                 }
                 when /field/ {
                     # a new field to add to the existing row
                     $field = Field.new: :$id;
                     $row.fields{$field.id} = $field;
+                    # TODO
                     # fill its attributes
                     #   field: id llx urx|w:val # key + 3 args
                 }
@@ -218,6 +220,7 @@ sub get-form-data($file,
                     # a new box to add to the existing page
                     $box = Box.new: :$id;
                     $page.boxes{$box.id} = $box;
+                    # TODO
                     # fill its attributes
                     # box: id llx lly urx|w:val ury|h:val  # key + 5 args
                 }
@@ -292,7 +295,7 @@ multi sub write-text(
 } # sub write-text
 
 sub write-form-test(
-    :$form-data!, # a form desciption class object
+    :$form-data!, # a Form desciption class object
     :$blank!,     # if true, use blank paper instead
     :$debug) is export {
 
@@ -319,6 +322,20 @@ sub write-form-test(
     # Use a standard PDF core font
     my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
     my $font-size = 9;
+
+    # step through $format pieces and outline the boxes
+    my $f = $form-data.id;
+    for $form-data.pages -> $page  {
+        say "DEBUG: page {$page.id}";
+        for $page.boxes.keys -> $k {
+            say "DEBUG: page boxes key: '$k'";
+        }
+        for $page.rows.keys -> $k {
+            say "DEBUG: page rows key: '$k'";
+        }
+    }
+
+    =begin comment
     $page1.text: {
         .font = $font, 9;
         # line 1, col 1, (of 14), y increment 24 points
@@ -346,6 +363,7 @@ sub write-form-test(
         .text-position = 35, 386;
         .say('100 sh XYZ');
     }
+    =end comment
 
     # Save the new PDF
     $o8949.IO.chmod: 0o667;
