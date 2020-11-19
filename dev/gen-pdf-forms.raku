@@ -164,13 +164,13 @@ sub get-form-data($file,
                     $page = Page.new: :$id;
                     $form.pages.push: $page;
                 }
-                when /row/   {
+                when /^row/   {
                     # a new row to add to the existing page
                     $row = Row.new: :$id;
                     $page.rows{$row.id} = $row;
                     # fill its attributes
                     # row: id lly ury|h:val  # key + id + 2 args
-                    say "DEBUG: checking row lly ($arg2)" if $debug;
+                    say "DEBUG: checking row lly ($arg1)" if $debug;
                     $row.lly = $arg1;
                     if $arg2 ~~ /'h:' (\S+) / {
                         say "DEBUG: checking row h ($arg2)" if $debug;
@@ -182,6 +182,7 @@ sub get-form-data($file,
                         note "DEBUG: dumping row" if $debug;
                         say $row.raku if $debug;
                     }
+                    $row.finish;
                 }
                 when /copyrow/ {
                     #         rowid copies delta-y
@@ -223,7 +224,7 @@ sub get-form-data($file,
                         } # end dup row
                     }
                     else {
-                        die "FATAL: Unexpected format on a 'repeat' line: '$s'";
+                        die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
                     }
                 }
                 when /field/ {
@@ -239,6 +240,7 @@ sub get-form-data($file,
                     else {
                         $field.urx = $arg2;
                     }
+                    $field.finish;
                 }
                 when /box/   {
                     # a new box to add to the existing page
@@ -260,6 +262,7 @@ sub get-form-data($file,
                     else {
                         $box.ury = $arg4;
                     }
+                    $box.finish;
                 }
                 default {
                     die "FATAL: Unknown key '$key'";
@@ -332,6 +335,12 @@ sub write-form-test(
     :$form-data!, # a Form desciption class object
     :$blank!,     # if true, use blank paper instead
     :$debug) is export {
+
+    if $debug > 1 {
+        say $form-data.gist;
+        say "DEBUG EXIT";
+        exit;
+    }
 
     # Open an existing PDF file
     my $pdf = PDF::API6.new;
