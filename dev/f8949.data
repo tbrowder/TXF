@@ -1,14 +1,16 @@
 form: f8949                                # key + id
 page: 1                                    # key + id
 #=================
-# row:     id lly ury|h:val                # key + id + 2 args
-#   field: id llx urx|w:val                # key + id + 2 args
-# box:     id llx lly urx|w:val ury|h:val  # key + id + 4 args
-# copyrow: rowid c:13 dy:-24               # key + id + 2 args
+# rows have fields and can be copied
+# row:     id          lly  ury|h:val                       # key + id + 2 args
+#   field: id          llx  urx|w:val                       # key + id + 2 args
+# copyrow: rowid       c:13 dy:-24                          # key + id + 2 args
+# copyrow: pageN:rowid c:13 dy:-24    y:val                 # key + id + 3 args
+# box:     id          llx  lly       urx|w:val  ury|h:val  # key + id + 4 args
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
-  field: name 36 360
+  field: name 36  360
   field: ssan 360 708
 
 # 3 boxes for selecting one choice of A, B, or C
@@ -17,8 +19,8 @@ box: box2 50,531 58,h:8
 box: box3 50,519 58,h:8
 
 # 14 transaction lines, each of 8 columns (24 points between baselines)
-row: line1 420 h:24
-  field: a 36 173
+row: line01 420 h:24
+  field: a 36  173
   field: b 173 223
   field: c 223 273
   field: d 273 338
@@ -27,7 +29,7 @@ row: line1 420 h:24
   field: g 446 511
   field: h 511 576
 
-copyrow: line1 c:13 dy:-24
+copyrow: line01 c:13 dy:-24
 
 # 1 total line of 4 columns
 row: total 61 109

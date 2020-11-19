@@ -142,13 +142,26 @@ sub get-form-data($file,
         say "DEBUG: line: $line" if $debug;
         if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + id
                        [ \h+ (\S+) \h+ (\S+)       # key + id + 2 args
-                          [ \h+ (\S+) \h+ (\S+) ]? # key + id + 4 args
+                          [ \h+ (\S+)              # key + id + 3 args
+                             [ \h+ (\S+) ]         # key + id + 4 args
+                          ]? \h* 
                        ]? \h* $/ {
             # this ought to match all input
+            if not $0 {
+                die "FATAL: Unexpected nil \$0 match on line: $line";
+            }
+            if not $1 {
+                die "FATAL: Unexpected nil \$1 match on line: $line";
+            }
             my $key = ~$0;
             my $id  = ~$1;
             my ($arg1, $arg2, $arg3, $arg4);
-            $arg1 = ~$2 if $2;
+            my $nargs = 0;
+            if $2 { $arg1 = ~$2; ++$nargs; };
+            if $3 { $arg2 = ~$3; ++$nargs; };
+            if $4 { $arg3 = ~$4; ++$nargs; };
+            if $5 { $arg4 = ~$5; ++$nargs; };
+
             $arg2 = ~$3 if $3;
             $arg3 = ~$4 if $4;
             $arg4 = ~$5 if $5;
@@ -185,13 +198,16 @@ sub get-form-data($file,
                     $row.finish;
                 }
                 when /copyrow/ {
-                    #         rowid copies delta-y
-                    # repeat: line1  c:13   dy:-24
+                    # 2 possibilities: 2 or 3 args
+                    # duplicate a row on the same page N more times:
+                    #    copyrow: rowid       c:13 dy:-24          # key + id + 2 args
+                    # duplicate a row on another page the same page N more times:
+                    #    copyrow: pageN:rowid c:13 dy:-24  y:val   # key + id + 3 args
                     if not $page.rows{$id}:exists {
                         die "FATAL: Copy row '$id' not found (form x, page y)";
                     }
-                    elsif $id ne 'line1' {
-                        die "FATAL: Copy row '$id' is not 'line1' as expected";
+                    elsif $id ne 'line01' {
+                        die "FATAL: Copy row '$id' is not 'line01' as expected";
                     }
                     my $s = "$arg1 $arg2";
                     if $s ~~ /\h* 'c:' (\d+) \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) / {
@@ -203,8 +219,10 @@ sub get-form-data($file,
                         my $ury    = $row.ury;
 
                         # dup each row 
-                        for 1..$copies -> $n {
-                            my $rowid = "line{$n+1}";
+                        for 1..$copies -> $n is copy {
+                            ++$n; # make line num correct
+                            #my $rowid = "line{$n+1}";
+                            my $rowid = sprintf 'line%02d', $n;
                             $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
                             $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
                             my $newrow = Row.new: :id($rowid), :$lly, :$ury;
@@ -344,6 +362,11 @@ sub write-form-test(
 
     # Open an existing PDF file
     my $pdf = PDF::API6.new;
+    # Set the default page size for all pages
+    $pdf.media-box = Letter;
+    # Use a standard PDF core font
+    my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
+    my $font-size = 9;
 
     # assumes two-page forms for now
     my ($page1, $page2);
@@ -360,20 +383,14 @@ sub write-form-test(
         $page2 = $pdf.page(2);
     }
 
-    # Set the default page size for all pages
-    $pdf.media-box = Letter;
-    # Use a standard PDF core font
-    my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
-    my $font-size = 9;
-
     # step through $format pieces and outline the boxes
     my $f = $form-data.id;
     for $form-data.pages -> $page  {
         say "DEBUG: page {$page.id}";
-        for $page.boxes.keys -> $k {
+        for $page.boxes.keys.sort -> $k {
             say "DEBUG: page boxes key: '$k'";
         }
-        for $page.rows.keys -> $k {
+        for $page.rows.keys.sort -> $k {
             say "DEBUG: page rows key: '$k'";
         }
     }
