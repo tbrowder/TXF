@@ -140,19 +140,18 @@ sub get-form-data($file,
         # remove commas, replace with spaces
         $line ~~ s:g/','/ /;
         say "DEBUG: line: $line" if $debug;
-        if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + 1 arg
-                       [ \h+ (\S+) \h+ (\S+)       # key + 3 args
-                          [ \h+ (\S+) \h+ (\S+) ]? # key + 5 args
+        if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + id
+                       [ \h+ (\S+) \h+ (\S+)       # key + id + 2 args
+                          [ \h+ (\S+) \h+ (\S+) ]? # key + id + 4 args
                        ]? \h* $/ {
             # this ought to match all input
             my $key = ~$0;
             my $id  = ~$1;
-            my ($arg1, $arg2, $arg3, $arg4, $arg5);
-            $arg1 = $id;
-            $arg2 = ~$2 if $2;
-            $arg3 = ~$3 if $3;
-            $arg4 = ~$4 if $4;
-            $arg5 = ~$5 if $5;
+            my ($arg1, $arg2, $arg3, $arg4);
+            $arg1 = ~$2 if $2;
+            $arg2 = ~$3 if $3;
+            $arg3 = ~$4 if $4;
+            $arg4 = ~$5 if $5;
             given $key {
                 when /form/ {
                     # the id MUST be the same as in $form
@@ -170,54 +169,58 @@ sub get-form-data($file,
                     $row = Row.new: :$id;
                     $page.rows{$row.id} = $row;
                     # fill its attributes
-                    # row: id lly ury|h:val  # key + 3 args
-                    say "DEBUG: checking row lly ($arg3)" if $debug;
-                    $row.lly = $arg2;
-                    if $arg3 ~~ /'h:' (\S+) / {
-                        say "DEBUG: checking row h ($arg3)" if $debug;
+                    # row: id lly ury|h:val  # key + id + 2 args
+                    say "DEBUG: checking row lly ($arg2)" if $debug;
+                    $row.lly = $arg1;
+                    if $arg2 ~~ /'h:' (\S+) / {
+                        say "DEBUG: checking row h ($arg2)" if $debug;
                         $row.h = ~$0;
                     }
                     else {
-                        say "DEBUG: checking row ury ($arg3)" if $debug;
-                        $row.ury = $arg3;
+                        say "DEBUG: checking row ury ($arg2)" if $debug;
+                        $row.ury = $arg2;
                         note "DEBUG: dumping row" if $debug;
                         say $row.raku if $debug;
                     }
                 }
-                when /repeat/ {
-                    #          tmpl times delta-y
-                    # repeat: line1 r:13   dy:-24
+                when /copyrow/ {
+                    #         rowid copies delta-y
+                    # repeat: line1  c:13   dy:-24
                     if not $page.rows{$id}:exists {
-                        die "FATAL: Repeat row '$id' not found (form x, page y)";
+                        die "FATAL: Copy row '$id' not found (form x, page y)";
                     }
                     elsif $id ne 'line1' {
-                        die "FATAL: Repeat row '$id' is not 'line1' as expected";
+                        die "FATAL: Copy row '$id' is not 'line1' as expected";
                     }
-                    my $s = "$arg2 $arg3";
-                    if $s ~~ /\h* 'r:' (\d+) \h+ 'dy:' (<[+-]>? \d+) / {
-                        my $times = +$0;
-                        my $dy    = +$1;
-                        my $nf  = $row.fields.elems;
-                        my $lly = $row.lly;
-                        for 2..^$times -> $n {
-                            $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
-                            my $rid = "line$n";
-                            my $nr = Row.new: :id($rid);
-                            # TODO
-                            # update the new row's attributes
+                    my $s = "$arg1 $arg2";
+                    if $s ~~ /\h* 'c:' (\d+) \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) / {
+                        # get the params to be copied
+                        my $copies = +$0;
+                        my $dy     = +$1;
+                        my $nf     = $row.fields.elems;
+                        my $lly    = $row.lly;
+                        my $ury    = $row.ury;
 
-                            
+                        # dup each row 
+                        for 1..$copies -> $n {
+                            my $rowid = "line{$n+1}";
+                            $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                            $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                            my $newrow = Row.new: :id($rowid), :$lly, :$ury;
+                            # add row to the page
+                            $page.rows{$rowid} = $newrow;
+
+                            # dup each field
                             for $row.fields.keys.sort -> $k {
                                 # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
                                 # get the master row's corresponding field's x values
                                 my $llx = $row.fields{$k}.llx;
                                 my $urx = $row.fields{$k}.urx;
                                 my $f = Field.new: :id($k), :$llx, :$urx;
-                                $nr.fields{$k} = $f;
-                                # TODO
-                                # update the new field's attributes
-                            }
-                        }
+                                $newrow.fields{$k} = $f;
+                            } # end dup field
+
+                        } # end dup row
                     }
                     else {
                         die "FATAL: Unexpected format on a 'repeat' line: '$s'";
@@ -229,12 +232,12 @@ sub get-form-data($file,
                     $row.fields{$field.id} = $field;
                     # fill its attributes
                     #   field: id llx urx|w:val # key + 3 args
-                    $field.llx = $arg2;
-                    if $arg3 ~~ /'w:' (\S+) / {
+                    $field.llx = $arg1;
+                    if $arg2 ~~ /'w:' (\S+) / {
                         $field.w = ~$0;
                     }
                     else {
-                        $field.urx = $arg3;
+                        $field.urx = $arg2;
                     }
                 }
                 when /box/   {
@@ -242,9 +245,9 @@ sub get-form-data($file,
                     $box = Box.new: :$id;
                     $page.boxes{$box.id} = $box;
                     # fill its attributes
-                    # box: id llx lly urx|w:val ury|h:val  # key + 5 args
-                    $box.llx = $arg2;
-                    $box.lly = $arg3;
+                    # box: id llx lly urx|w:val ury|h:val  # key + id + 4 args
+                    $box.llx = $arg1;
+                    $box.lly = $arg2;
                     if $arg3 ~~ /'w:' (\S+) / {
                         $box.w = ~$0;
                     }

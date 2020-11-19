@@ -1,13 +1,13 @@
-form: f8949                                # key + 1 arg
-page: 1                                    # key + 1 arg
+form: f8949                                # key + id
+page: 1                                    # key + id
 #=================
-# row:     id lly ury|h:val                # key + 3 args
-#   field: id llx urx|w:val                # key + 3 args
-# box:     id llx lly urx|w:val ury|h:val  # key + 5 args
-# repeat: line1 r:13 dy:-24                # key + 2 args
+# row:     id lly ury|h:val                # key + id + 2 args
+#   field: id llx urx|w:val                # key + id + 2 args
+# box:     id llx lly urx|w:val ury|h:val  # key + id + 4 args
+# copyrow: rowid c:13 dy:-24               # key + id + 2 args
 
 # 1 data line of two columns (fields)
-row: row0 684 708
+row: taxpayer 684 708
   field: name 36 360
   field: ssan 360 708
 
@@ -27,7 +27,7 @@ row: line1 420 h:24
   field: g 446 511
   field: h 511 576
 
-repeat: line1 r:13 dy:-24
+copyrow: line1 c:13 dy:-24
 
 # 1 total line of 4 columns
 row: total 61 109
