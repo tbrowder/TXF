@@ -134,7 +134,7 @@ sub get-form-data($file,
     my $row;
     my $field;
 
-    for $file.IO.lines -> $line is copy {
+    LINE: for $file.IO.lines -> $line is copy {
         $line = strip-comment $line;
         next if $line !~~ /\S/;
         # remove commas, replace with spaces
@@ -201,13 +201,21 @@ sub get-form-data($file,
                     # 2 possibilities: 2 or 3 args
                     # duplicate a row on the same page N more times:
                     #    copyrow: rowid       c:13 dy:-24          # key + id + 2 args
-                    # duplicate a row on another page the same page N more times:
+                    # duplicate a row on another page on the current page N more times:
                     #    copyrow: pageN:rowid c:13 dy:-24  y:val   # key + id + 3 args
                     if not $page.rows{$id}:exists {
                         die "FATAL: Copy row '$id' not found (form x, page y)";
                     }
                     elsif $id ne 'line01' {
                         die "FATAL: Copy row '$id' is not 'line01' as expected";
+                    }
+                    if $nargs == 2 {
+                        ; # ok
+                    }
+                    elsif $nargs == 3 {
+                        say "WARNING: 3 arg version not yet ready";
+                        say "  line: $line";
+                        next LINE;
                     }
                     my $s = "$arg1 $arg2";
                     if $s ~~ /\h* 'c:' (\d+) \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) / {
