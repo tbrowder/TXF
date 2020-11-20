@@ -1,12 +1,17 @@
 form: f8949                                # key + id
 page: 1                                    # key + id
 #=================
+# NOTE: commas are replaced by spaces upon read
+#       object ids on a page must be unique
 # rows have fields and can be copied
 # row:     id          lly  ury|h:val                       # key + id + 2 args
 #   field: id          llx  urx|w:val                       # key + id + 2 args
-# copyrow: rowid       c:13 dy:-24                          # key + id + 2 args
-# copyrow: pageN:rowid c:13 dy:-24    y:val                 # key + id + 3 args
+# copyrow: rowid       c:N  dy:val                          # key + id + 2 args
+# copyrow: pageN:rowid c:N  dy:val    y:val                 # key + id + 3 args
+# boxes can be copied
 # box:     id          llx  lly       urx|w:val  ury|h:val  # key + id + 4 args
+# copybox: boxid       c:N  dy:val                          # key + id + 2 args
+# copybox: pageN:boxid c:N  dy:val    y:val                 # key + id + 3 args
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
@@ -42,5 +47,5 @@ row: total 61 109
 #page: 2
 #==================
 
-# same layout as page 1 but with y coords shifted by dy=N
+# same layout as page 1 but with some y coords shifted by dy=N
 
