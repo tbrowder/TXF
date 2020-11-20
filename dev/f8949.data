@@ -19,9 +19,11 @@ row: taxpayer 684 708
   field: ssan 360 708
 
 # 3 boxes for selecting one choice of A, B, or C
-box: box1 50,543 58,h:8
-box: box2 50,531 58,h:8
-box: box3 50,519 58,h:8
+box: box01 50,543 58,h:8
+copybox: box01 c:2 dy:-12
+
+#box: box2 50,531 58,h:8
+#box: box3 50,519 58,h:8
 
 # 14 transaction lines, each of 8 columns (24 points between baselines)
 row: line01 420 h:24
@@ -44,8 +46,15 @@ row: total 61 109
   field: h 511 576
 
 # ("Part II")
-#page: 2
+page: 2
 #==================
 
 # same layout as page 1 but with some y coords shifted by dy=N
 
+copyrow: page1:taxpayer y:720
+
+copybox: page1:box01 y:579
+
+copyrow: page1:line01 y:456
+
+copyrow: page1:total y:97
