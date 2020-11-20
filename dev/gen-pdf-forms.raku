@@ -143,9 +143,11 @@ sub get-form-data($file,
         $line ~~ s:g/','/ /;
         say "DEBUG: line: $line" if $debug;
         if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + id
-                       [ \h+ (\S+) \h+ (\S+)       # key + id + 2 args
-                          [ \h+ (\S+)              # key + id + 3 args
-                             [ \h+ (\S+) ]         # key + id + 4 args
+                       [ \h+ (\S+)                 # key + id + 1 arg
+                          [ \h+ (\S+)              # key + id + 2 args
+                             [ \h+ (\S+)           # key + id + 3 args
+                                [ \h+ (\S+) ]      # key + id + 4 args
+                             ]? \h* 
                           ]? \h* 
                        ]? \h* $/ {
             # this ought to match all input
@@ -201,27 +203,40 @@ sub get-form-data($file,
                     }
                     $row.finish;
                 }
-                when /copyrow/ {
+                when /copyrows$/ {
+                    # duplicate a row on another page on the current page N more times:
+                    #    copyrows: pageN:rowid y:val # key + id + 1 args
+                    say "DEBUG: found key: $key";
+                }
+                when /copyrow$/ {
                     =begin comment
                     form-copy-row :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
                     =end comment
 
-                    # 2 possibilities: 2 or 3 args
+                    # two forms
                     # duplicate a row on the same page N more times:
                     #    copyrow: rowid       c:13 dy:-24          # key + id + 2 args
-                    # duplicate a row on another page on the current page N more times:
-                    #    copyrow: pageN:rowid c:13 dy:-24  y:val   # key + id + 3 args
+                    # copy a row on another page to the current page:
+                    #    copyrow: pageN:rowid y:val                # key + id + 1 args
+                    my $other-page-id = $id;
+                    if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
+                        $other-page-id = +$0;
+                        $id = ~$1;
+                    }
+                    else {
+                        ; #die "FATAL: ";
+                    }
                     if not $page.rows{$id}:exists {
                         die "FATAL: Copy row '$id' not found (form x, page y)";
                     }
-                    elsif $id ne 'line01' {
-                        die "FATAL: Copy row '$id' is not 'line01' as expected";
+                    elsif $id !~~ /'01'$/ {
+                        die "FATAL: Copy row '$id' ends not in '01' as expected";
                     }
                     my $s;
                     if $nargs == 2 {
                         $s = "$arg1 $arg2";
                     }
-                    elsif $nargs == 3 {
+                    elsif $nargs == 1 {
                         say "WARNING: 3 arg version not yet ready";
                         say "  line: $line";
                         next LINE;
