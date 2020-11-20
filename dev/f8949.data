@@ -3,15 +3,22 @@ page: 1                                    # key + id
 #=================
 # NOTE: commas are replaced by spaces upon read
 #       object ids on a page must be unique
-# rows have fields and can be copied
-# row:     id          lly  ury|h:val                       # key + id + 2 args
-#   field: id          llx  urx|w:val                       # key + id + 2 args
-# copyrow: rowid       c:N  dy:val                          # key + id + 2 args
-# copyrow: pageN:rowid c:N  dy:val    y:val                 # key + id + 3 args
-# boxes can be copied
-# box:     id          llx  lly       urx|w:val  ury|h:val  # key + id + 4 args
-# copybox: boxid       c:N  dy:val                          # key + id + 2 args
-# copybox: pageN:boxid c:N  dy:val    y:val                 # key + id + 3 args
+#       rows have one or more fields and can be copied
+# NOTE: IRS forms use terms like "line" for rows and "column" for fields
+#       IRS forms use term "box" for a row with a single field
+# row:      id          lly  ury|h:val                       # key + id + 2 args
+#   field:  id          llx  urx|w:val                       # key + id + 2 args
+# NOTE: 
+#   two forms:
+#       "copyrow" adds N copies of a row immediately following it on the same page
+#       the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
+#       will be incremented by one for following rows in the row group
+# copyrow:  rowid       c:N  dy:val                          # key + id + 2 args
+#       copies the single row on another page onto the current page (which must not reference itself)
+# copyrow:  pageN:rowid      y:val                           # key + id + 1 args
+# NOTE: "copyrows" copies all of row group "xyz01" on the referenced page onto
+#       the current page (which must not reference itself)
+# copyrows: pageN:rowid y:val                                # key + id + 1 arg
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
@@ -19,8 +26,9 @@ row: taxpayer 684 708
   field: ssan 360 708
 
 # 3 boxes for selecting one choice of A, B, or C
-box: box01 50,543 58,h:8
-copybox: box01 c:2 dy:-12
+row: box01 543 h:8
+  field: a 50 58
+copyrow: box01 c:2 dy:-12
 
 #box: box2 50,531 58,h:8
 #box: box3 50,519 58,h:8
@@ -53,8 +61,8 @@ page: 2
 
 copyrow: page1:taxpayer y:720
 
-copybox: page1:box01 y:579
+copyrows: page1:box01 y:579
 
-copyrow: page1:line01 y:456
+copyrows: page1:line01 y:456
 
 copyrow: page1:total y:97
