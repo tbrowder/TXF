@@ -234,33 +234,32 @@ sub get-form-data($file,
                         $nf     = $row.fields.elems;
                         $lly    = $row.lly;
                         $ury    = $row.ury;
-
-                        # dup each row 
-                        for 1..$copies -> $n is copy {
-                            ++$n; # make line num correct
-                            #my $rowid = "line{$n+1}";
-                            my $rowid = sprintf 'line%02d', $n;
-                            $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
-                            $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
-                            my $newrow = Row.new: :id($rowid), :$lly, :$ury;
-                            # add row to the page
-                            $page.rows{$rowid} = $newrow;
-
-                            # dup each field
-                            for $row.fields.keys.sort -> $k {
-                                # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
-                                # get the master row's corresponding field's x values
-                                my $llx = $row.fields{$k}.llx;
-                                my $urx = $row.fields{$k}.urx;
-                                my $f = Field.new: :id($k), :$llx, :$urx;
-                                $newrow.fields{$k} = $f;
-                            } # end dup field
-
-                        } # end dup row
                     }
                     else {
                         die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
                     }
+
+                    # dup each row 
+                    for 1..$copies -> $n is copy {
+                        ++$n; # make line num correct
+                        #my $rowid = "line{$n+1}";
+                        my $rowid = sprintf 'line%02d', $n;
+                        $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                        $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                        my $newrow = Row.new: :id($rowid), :$lly, :$ury;
+                        # add row to the page
+                        $page.rows{$rowid} = $newrow;
+
+                        # dup each field
+                        for $row.fields.keys.sort -> $k {
+                            # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
+                            # get the master row's corresponding field's x values
+                            my $llx = $row.fields{$k}.llx;
+                            my $urx = $row.fields{$k}.urx;
+                            my $f = Field.new: :id($k), :$llx, :$urx;
+                            $newrow.fields{$k} = $f;
+                        } # end dup field
+                    } # end dup row
                 }
                 when /field/ {
                     # a new field to add to the existing row
