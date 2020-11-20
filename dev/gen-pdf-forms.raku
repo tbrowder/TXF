@@ -128,10 +128,12 @@ sub get-form-data($file,
     # current objects
     # return a Form object
     my $form = Form.new: :id($form-id);
-
+    # child objects of a form
     my $page;
+    # child objects of a page
     my $box;
     my $row;
+    # child objects of a row
     my $field;
 
     LINE: for $file.IO.lines -> $line is copy {
@@ -156,15 +158,13 @@ sub get-form-data($file,
             my $key = ~$0;
             my $id  = ~$1;
             my ($arg1, $arg2, $arg3, $arg4);
-            my $nargs = 0;
-            if $2 { $arg1 = ~$2; ++$nargs; };
-            if $3 { $arg2 = ~$3; ++$nargs; };
-            if $4 { $arg3 = ~$4; ++$nargs; };
-            if $5 { $arg4 = ~$5; ++$nargs; };
+            my @args;
+            if $2 { $arg1 = ~$2; @args.push: $arg1; }
+            if $3 { $arg2 = ~$3; @args.push: $arg2; }
+            if $4 { $arg3 = ~$4; @args.push: $arg3; }
+            if $5 { $arg4 = ~$5; @args.push: $arg4; }
+            my $nargs = @args.elems;
 
-            $arg2 = ~$3 if $3;
-            $arg3 = ~$4 if $4;
-            $arg4 = ~$5 if $5;
             given $key {
                 when /form/ {
                     # the id MUST be the same as in $form
@@ -179,6 +179,10 @@ sub get-form-data($file,
                 }
                 when /^row/   {
                     # a new row to add to the existing page
+                    =begin comment
+                    form-add-row :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    =end comment
+
                     $row = Row.new: :$id;
                     $page.rows{$row.id} = $row;
                     # fill its attributes
@@ -198,6 +202,10 @@ sub get-form-data($file,
                     $row.finish;
                 }
                 when /copyrow/ {
+                    =begin comment
+                    form-copy-row :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    =end comment
+
                     # 2 possibilities: 2 or 3 args
                     # duplicate a row on the same page N more times:
                     #    copyrow: rowid       c:13 dy:-24          # key + id + 2 args
@@ -298,6 +306,10 @@ sub get-form-data($file,
                 }
                 when /field/ {
                     # a new field to add to the existing row
+                    =begin comment
+                    form-add-field :$row, :$id, :@args, :$line, :$debug;
+                    =end comment
+
                     $field = Field.new: :$id;
                     $row.fields{$field.id} = $field;
                     # fill its attributes
@@ -311,8 +323,17 @@ sub get-form-data($file,
                     }
                     $field.finish;
                 }
-                when /box/   {
+                when /copybox/   {
+                    =begin comment
+                    form-copy-box :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    =end comment
+                }
+                when /^box/   {
                     # a new box to add to the existing page
+                    =begin comment
+                    form-add-box :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    =end comment
+
                     $box = Box.new: :$id;
                     $page.boxes{$box.id} = $box;
                     # fill its attributes
@@ -482,3 +503,19 @@ sub write-form-test(
     say "See file '$o8949'";
 
 } # sub write-form-test
+
+sub form-add-box() {
+}
+
+sub form-copy-box() {
+}
+
+sub form-add-row() {
+}
+
+sub form-copy-row() {
+}
+
+sub form-add-field() {
+}
+
