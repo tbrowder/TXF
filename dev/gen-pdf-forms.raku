@@ -226,14 +226,49 @@ sub get-form-data($file,
                     my $nf;     # = $row.fields.elems;
                     my $lly;    # = $row.lly;
                     my $ury;    # = $row.ury;
+                    my $starty; #
 
-                    if $s ~~ /\h* 'c:' (\d+) \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) / {
+                    if $nargs == 2 and $s ~~ /\h* 'c:' (\d+)
+                                              \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) 
+                                             / {
+                        # two-arg form
+                        # duplicate a row on the same page N more times:
+                        #    copyrow: rowid => c:13 dy:-24          # key + id + 2 args
                         # get the params to be copied
                         $copies = +$0;
                         $dy     = +$1;
                         $nf     = $row.fields.elems;
                         $lly    = $row.lly;
                         $ury    = $row.ury;
+                    }
+                    elsif $nargs == 3  {
+                        # three-arg form
+                        # duplicate a row on another page on the current page N more times:
+                        #    copyrow: pageN:rowid => c:13 dy:-24  y:val   # key + id + 3 args
+                        # get the params to be copied
+                        # must parse the $id first
+                        if $id ~~ / page (\d+) ':' (\S+) / {
+                            my $pn  = +$0;
+                            my $rid = ~$1;
+                        }
+                        else {
+                            die "FATAL: ";
+                        }
+                        # then the three args
+                        if $s ~~ /\h* 'c:' (\d+) 
+                                  \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) 
+                                  \h+ 'y:' (<[+-]>? \d+ ['.'\d*]?) 
+                                 / {
+                            $copies = +$0;
+                            $dy     = +$1;
+                            $starty = +$2;
+                            $nf     = $row.fields.elems;
+                            $lly    = $row.lly;
+                            $ury    = $row.ury;
+                        }
+                        else {
+                            die "FATAL: ";
+                        }
                     }
                     else {
                         die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
