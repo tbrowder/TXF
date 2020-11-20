@@ -209,22 +209,31 @@ sub get-form-data($file,
                     elsif $id ne 'line01' {
                         die "FATAL: Copy row '$id' is not 'line01' as expected";
                     }
+                    my $s;
                     if $nargs == 2 {
-                        ; # ok
+                        $s = "$arg1 $arg2";
                     }
                     elsif $nargs == 3 {
                         say "WARNING: 3 arg version not yet ready";
                         say "  line: $line";
                         next LINE;
+                        $s = "$arg1 $arg2 $arg3";
                     }
-                    my $s = "$arg1 $arg2";
+
+                    # params to be used in the copy
+                    my $copies; # = +$0;
+                    my $dy;     # = +$1;
+                    my $nf;     # = $row.fields.elems;
+                    my $lly;    # = $row.lly;
+                    my $ury;    # = $row.ury;
+
                     if $s ~~ /\h* 'c:' (\d+) \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) / {
                         # get the params to be copied
-                        my $copies = +$0;
-                        my $dy     = +$1;
-                        my $nf     = $row.fields.elems;
-                        my $lly    = $row.lly;
-                        my $ury    = $row.ury;
+                        $copies = +$0;
+                        $dy     = +$1;
+                        $nf     = $row.fields.elems;
+                        $lly    = $row.lly;
+                        $ury    = $row.ury;
 
                         # dup each row 
                         for 1..$copies -> $n is copy {
