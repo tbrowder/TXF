@@ -27,5 +27,12 @@ $w   = 1;
 $o = Field.new: :$id, :$llx, :$urx, :$w;
 is $o.w, 1;
 
+# test precedence of w over urx
+$llx = 1;
+$urx = 2;
+$w   = 4;
+$o = Field.new: :$id, :$llx, :$urx, :$w;
+is $o.w, 4;
+is $o.urx, 5;
 
 done-testing;

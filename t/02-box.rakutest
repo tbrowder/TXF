@@ -29,4 +29,17 @@ $o = Box.new: :$id, :$llx, :$lly, :$urx, :$ury;
 is $o.w, 1;
 is $o.h, 2;
 
+# test precedence of h,w over ury,urx
+$llx = 1;
+$lly = 2;
+$urx = 2;
+$ury = 3;
+$w   = 4;
+$h   = 5;
+$o = Box.new: :$id, :$llx, :$lly, :$urx, :$ury, :$w, :$h;
+is $o.w, 4;
+is $o.urx, 5;
+is $o.h, 5;
+is $o.ury, 7;
+
 done-testing;

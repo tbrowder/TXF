@@ -27,5 +27,16 @@ $h   = 3;
 $o = Row.new: :$id, :$lly, :$ury, :$h;
 is $o.h, 3;
 
+# test precedence of h over ury
+$llx = 1;
+$lly = 2;
+$urx = 2;
+$ury = 3;
+$w   = 4;
+$h   = 5;
+$o = Row.new: :$id, :$lly, :$ury, :$h;
+is $o.h, 5;
+is $o.ury, 7;
+
 
 done-testing;
