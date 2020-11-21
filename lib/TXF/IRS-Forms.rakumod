@@ -16,28 +16,44 @@ class Box does Point is export {
 =end comment
 
 class Box is export {
-    has $.id; # is rw;
-    # must define both:
-    has $.llx; # is rw;
-    has $.lly; # is rw;
+    # must define all three:
+    has $.id;
+    has $.llx;
+    has $.lly;
 
     # must define one of the two:
-    has $.urx; # is rw;
-    has $.w; #   is rw;
+    has $.urx;
+    has $.w;
     # must define one of the two:
-    has $.ury; # is rw;
-    has $.h; #   is rw;
+    has $.ury;
+    has $.h;
 
     submethod TWEAK() {
         # check mandatory attrs
         my $err = 0;
-        ++$err if not $!id.defined;
-        ++$err if not $!llx.defined;
-        ++$err if not $!lly.defined;
-        ++$err if not $!urx.defined and not $!w.defined;
-        ++$err if not $!ury.defined and not $!h.defined;
+        my $msg = "FATAL: class Box undefined attrs:\n";
+        if not $!id.defined {
+            ++$err;
+            $msg ~= "\$id\n";
+        }
+        if not $!llx.defined {
+            ++$err;
+            $msg ~= "\$llx\n";
+        }
+        if not $!lly.defined {
+            ++$err;
+            $msg ~= "\$lly\n";
+        }
+        if not $!urx.defined and not $!w.defined {
+            ++$err;
+            $msg ~= "\$urx and \$w\n";
+        }
+        if not $!ury.defined and not $!h.defined {
+            ++$err;
+            $msg ~= "\$ury and \$h\n";
+        }
 
-        die "FATAL: necessary attrs not provided at construction" if $err;
+        die $msg if $err;
      
         # h vs ury
         if $!h.defined {
