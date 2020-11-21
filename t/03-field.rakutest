@@ -13,20 +13,19 @@ my $w   = 3;
 my $h   = 4;
 
 # object should die during construction if required attrs aren't provided
-dies-ok {$o = Box.new: :$llx, :$lly;};
+dies-ok {$o = Field.new: :$llx;};
 dies-ok {$o.llx == $llx;};
-dies-ok {$o.lly == $lly;};
+dies-ok {$o.w == $w;};
 
-
-$o = Box.new: :$id, :$llx, :$lly, :$w, :$h;
+$o = Field.new: :$id, :$llx, :$urx, :$w;
 is $o.id, <a>;
 is $o.urx, 3;
-is $o.ury, 4;
+is $o.w, 3;
 
-$urx = 1;
 $ury = 2;
-$o = Box.new: :$id, :$llx, :$lly, :$urx, :$ury;
+$w   = 1;
+$o = Field.new: :$id, :$llx, :$urx, :$w;
 is $o.w, 1;
-is $o.h, 2;
+
 
 done-testing;
