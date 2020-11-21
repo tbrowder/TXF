@@ -59,7 +59,7 @@ Capability: Use an enhanced example Form 8949 xlsx file to provide the missing o
 CREDITS
 =======
 
-  * Thanks to fellow [GnuCash](https://gnucash.org) user **John John Ralls** <jralls@ceridwen.us> who kindly found the included reference documents detailing the TXF file format specification.
+  * Thanks to fellow [GnuCash](https://gnucash.org) user **John Ralls** <jralls@ceridwen.us> who kindly found the included reference documents detailing the TXF file format specification.
 
   * Thanks to Github user **Misha Brukman** and the Github repository atn[https://github.com/mbrukman/csv2txf/](https://github.com/mbrukman/csv2txf/) for inspiration and some code (as well as the name of the driver program `csv2txf.raku`). See the code source in file `./lib/TXF/CSV2TXT.rakumod`
 

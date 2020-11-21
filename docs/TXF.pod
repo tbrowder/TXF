@@ -72,7 +72,7 @@ and mailed tax return.
 
 =head1 CREDITS
 
-=item Thanks to fellow [GnuCash](https://gnucash.org) user B<John John
+=item Thanks to fellow [GnuCash](https://gnucash.org) user B<John
 Ralls> <jralls@ceridwen.us> who kindly found the included reference
 documents detailing the TXF file format specification.
 
