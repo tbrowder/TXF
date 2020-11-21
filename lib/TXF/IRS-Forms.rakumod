@@ -28,6 +28,9 @@ class Box is export {
     has $.ury;
     has $.h;
 
+    # extra calculated info
+    has $.area;
+
     submethod TWEAK() {
         # check mandatory attrs
         my $err = 0;
@@ -69,6 +72,7 @@ class Box is export {
         elsif $!urx.defined {
            $!w   = $!urx - $!llx;
         }
+        $!area = $!w * $!h;
     }
 
     =begin comment
