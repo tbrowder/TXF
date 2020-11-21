@@ -16,17 +16,46 @@ class Box does Point is export {
 =end comment
 
 class Box is export {
-    has $.id  is rw;
-    has $.llx is rw;
-    has $.lly is rw;
+    has $.id; # is rw;
+    # must define both:
+    has $.llx; # is rw;
+    has $.lly; # is rw;
 
     # must define one of the two:
-    has $.urx is rw;
-    has $.w   is rw;
+    has $.urx; # is rw;
+    has $.w; #   is rw;
     # must define one of the two:
-    has $.ury is rw;
-    has $.h   is rw;
+    has $.ury; # is rw;
+    has $.h; #   is rw;
 
+    submethod TWEAK() {
+        # check mandatory attrs
+        my $err = 0;
+        ++$err if not $!id.defined;
+        ++$err if not $!llx.defined;
+        ++$err if not $!lly.defined;
+        ++$err if not $!urx.defined and not $!w.defined;
+        ++$err if not $!ury.defined and not $!h.defined;
+
+        die "FATAL: necessary attrs not provided at construction" if $err;
+     
+        # h vs ury
+        if $!h.defined {
+            $!ury = $!lly + $!h;
+        }
+        elsif $!ury.defined {
+            $!h   = $!ury - $!lly;
+        }
+        # w vs urx
+        if $!w.defined {
+           $!urx = $!llx + $!w;
+        }
+        elsif $!urx.defined {
+           $!w   = $!urx - $!llx;
+        }
+    }
+
+    =begin comment
     # special override methods:
     # setters
     method set-urx($v) {
@@ -61,6 +90,7 @@ class Box is export {
            $!w   = $!urx - $!llx;
         }
     }
+    =end comment
 }
 
 class Field is export {

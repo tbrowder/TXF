@@ -1,0 +1,25 @@
+use Test;
+use TXF;
+use TXF::IRS-Forms;
+
+my ($o, $id, $llx, $lly, $urx, $ury, $w, $h);
+
+dies-ok {$o = Box.new: :$llx, :$lly;};
+dies-ok {$o.llx == $llx;};
+dies-ok {$o.lly == $lly;};
+
+$id  = 'a';
+$llx = 0;
+$lly = 0;
+$w = 3;
+$h = 4;
+$o = Box.new: :$id, :$llx, :$lly, :$w, :$h;
+is $o.urx, 3;
+is $o.ury, 4;
+
+$urx = 1;
+$ury = 2;
+
+
+
+done-testing;
