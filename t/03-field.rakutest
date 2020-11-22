@@ -1,6 +1,6 @@
 use Test;
 use TXF;
-use TXF::IRS-Forms;
+use TXF::Forms;
 
 my $o;
 # assign values to be used for all class attrs
