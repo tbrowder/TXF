@@ -1,21 +1,80 @@
 unit module TXF::Forms;
 
+use Grammar::PrettyErrors;
+
 class Form-actions {
+    method line($/) {
+        =begin comment
+        my $s = 'line';
+        note "DEBUG: found a <$s> token: '{~$/}'";
+        =end comment
+    }
+    method form($/) {
+        =begin comment
+        my $s = 'form';
+        note "DEBUG: found a <$s> token: '{~$/}'";
+        =end comment
+    }
+    method page($/) {
+        =begin comment
+        my $s = 'page';
+        note "DEBUG: found a <$s> token: '{~$/}'";
+        =end comment
+    }
+    method eol($/) {
+        =begin comment
+        my $s = 'eol';
+        note "DEBUG: found a <$s> token: '{~$/}'";
+        =end comment
+    }
+    method arg($/) {
+        =begin comment
+        my $s = 'arg';
+        note "DEBUG: found a <$s> token: '{~$/}'";
+        =end comment
+    }
 }
 
-grammar Form-grammar {
+grammar Form-grammar does Grammar::PrettyErrors {
 
     # this parses fine and ready for actions
     token TOP {
         <line>+
     }
 
-    token line          { [<end-of-record> || <field> || <blank>] }
-    token field         { $<code>=. $<value>=\N* \n }
-    token end-of-record { '^' \n }
-    token blank         { \h* \n }
+    token line   { 
+                   [
+                     || <form> 
+                     || <page>
+                     || <row>
+                     || <copyrow>
+                     || <copyrows>
+                     || <duprow>
+                     || <field>
+                   ]?
+                   <eol>
+                 }
+
+    # these tokens take 1 arg (id)
+    token form     { \h* form \h* ':' \h* <arg>  }
+    token page     { \h* page \h* ':' \h* <arg>  }
+
+    # these tokens take 3 args (id + 2 args)
+    token row      { \h* row    \h* ':' \h* <arg> \h+ <arg> \h+ <arg> }
+    token duprow   { \h* duprow \h* ':' \h* <arg> \h+ <arg> \h+ <arg> }
+    token field    { \h* field  \h* ':' \h* <arg> \h+ <arg> \h+ <arg> }
+
+    # these tokens take 2 args (id + 1 arg)
+    token copyrow  { \h* copyrow  \h* ':' \h* <arg> \h+ <arg> }
+    token copyrows { \h* copyrows \h* ':' \h* <arg> \h+ <arg> }
+
+    token arg      { \S+ }
+    token eol      { \h* ['#' \N*]? \n }
 
     =begin comment
+    token row    { ^ row ':' \N+ }
+    token arg    { ^ \S+ <.before ':'> }
+
     # tokens below are unused at the moment
 
     # a header is a collection of the three header fields in a 
