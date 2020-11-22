@@ -9,16 +9,18 @@ page: 1                                    # key + id
 # row:      id          lly  ury|h:val                       # key + id + 2 args
 #   field:  id          llx  urx|w:val                       # key + id + 2 args
 # NOTE: 
-#   two forms:
-#       "copyrow" adds N copies of a row immediately following it on the same page
+#    "duprow" adds N copies of a row immediately following it on the same page
 #       the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
 #       will be incremented by one for following rows in the row group
-# copyrow:  rowid       c:N  dy:val                          # key + id + 2 args
-#       copies the single row on another page onto the current page (which must not reference itself)
+# duprow:  rowid       c:N  dy:val                          # key + id + 2 args
+# NOTE:
+#    "copyrow" copies the single row on another page onto the current page (which must not reference itself)
 # copyrow:  pageN:rowid      y:val                           # key + id + 1 args
-# NOTE: "copyrows" copies all of row group "xyz01" on the referenced page onto
-#       the current page (which must not reference itself)
-# copyrows: pageN:rowid y:val                                # key + id + 1 arg
+# NOTE: 
+#    "copyrows" adds all copies of a row set on another page to the current page
+#    the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
+#       will be incremented by one for following rows in the row group
+# copyrows: pageN:rowid      y:val                           # key + id + 1 args
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
@@ -28,10 +30,7 @@ row: taxpayer 684 708
 # 3 boxes for selecting one choice of A, B, or C
 row: box01 543 h:8
   field: a 50 58
-copyrow: box01 c:2 dy:-12
-
-#box: box2 50,531 58,h:8
-#box: box3 50,519 58,h:8
+duprow: box01 c:2 dy:-12
 
 # 14 transaction lines, each of 8 columns (24 points between baselines)
 row: line01 420 h:24
@@ -44,7 +43,7 @@ row: line01 420 h:24
   field: g 446 511
   field: h 511 576
 
-copyrow: line01 c:13 dy:-24
+duprow: line01 c:13 dy:-24
 
 # 1 total line of 4 columns
 row: total 61 109
@@ -57,7 +56,7 @@ row: total 61 109
 page: 2
 #==================
 
-# same layout as page 1 but with some y coords shifted by dy=N
+# same layout as page 1 but with some y coords shifted to a new starting y
 
 copyrow: page1:taxpayer y:720
 
