@@ -18,7 +18,7 @@
     "TXF": "lib/TXF.rakumod",
     "TXF::CSV2TXF": "lib/TXF/CSV2TXF.rakumod",
     "TXF::File": "lib/TXF/File.rakumod",
-    "TXF::IRS-Forms": "lib/TXF/IRS-Forms.rakumod",
+    "TXF::Forms": "lib/TXF/Forms.rakumod",
     "TXF::Utils": "lib/TXF/Utils.rakumod"
   },
   "resources": [
