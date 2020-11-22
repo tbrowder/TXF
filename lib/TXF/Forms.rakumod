@@ -1,19 +1,37 @@
-unit module TXF::IRS-Forms;
+unit module TXF::Forms;
 
-=begin comment
-role Point is export {
-    has $.x is rw;
-    has $.y is rw;
+class Form-actions {
 }
 
-class Box does Point is export {
-    has       $.id is rw;
-    has Point $.ll is rw;
-    has Point $.ur is rw;
-    method w { return $!ur.x - $!ll.x; }
-    method h { return $!ur.y - $!ll.y; }
+grammar Form-grammar {
+
+    # this parses fine and ready for actions
+    token TOP {
+        <line>+
+    }
+
+    token line          { [<end-of-record> || <field> || <blank>] }
+    token field         { $<code>=. $<value>=\N* \n }
+    token end-of-record { '^' \n }
+    token blank         { \h* \n }
+
+    =begin comment
+    # tokens below are unused at the moment
+
+    # a header is a collection of the three header fields in a 
+    # specific order possibly interspersed with blank lines
+    token header {
+        <header-field>+
+    }
+
+    # a record is a certain collection of fields possibly interspersed
+    # with blank lines
+    token record {
+        <record-field>?
+    }
+    =end comment 
 }
-=end comment
+
 
 class Box is export {
     # must define all three:
@@ -56,6 +74,7 @@ class Box is export {
         die $msg if $err;
      
         # h vs ury
+        # h has precedence over ury
         if $!h.defined {
             $!ury = $!lly + $!h;
         }
@@ -63,6 +82,7 @@ class Box is export {
             $!h   = $!ury - $!lly;
         }
         # w vs urx
+        # w has precedence over urx
         if $!w.defined {
            $!urx = $!llx + $!w;
         }
@@ -70,7 +90,7 @@ class Box is export {
            $!w   = $!urx - $!llx;
         }
     }
-}
+} # class Box
 
 class Field is export {
     # must define:
@@ -101,6 +121,7 @@ class Field is export {
         die $msg if $err;
      
         # w vs urx
+        # w has precedence over urx
         if $!w.defined {
            $!urx = $!llx + $!w;
         }
@@ -108,7 +129,7 @@ class Field is export {
            $!w   = $!urx - $!llx;
         }
     }
-}
+} # class Field
 
 class Row is export {
     # must define:
@@ -139,6 +160,7 @@ class Row is export {
         die $msg if $err;
      
         # h vs ury
+        # h has precedence over ury
         if $!h.defined {
             $!ury = $!lly + $!h;
         }
@@ -149,7 +171,7 @@ class Row is export {
 
     # left to right => 8 id keys a..h
     has Field %.fields is rw;
-}
+} # class Row
 
 class Taxpayer is export {
     has $.names is rw;
@@ -157,12 +179,11 @@ class Taxpayer is export {
 }
 
 class Page is export {
-    has $.id        is rw;
+    has Int $.id;
     has Row %.rows  is rw;
-    has Box %.boxes is rw;
 }
 
 class Form is export {
-    has $.id         is rw;
-    has Page @.pages is rw;
+    has $.id;
+    has Page %.pages is rw; # page id should be the page number
 }

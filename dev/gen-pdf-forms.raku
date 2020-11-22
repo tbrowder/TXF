@@ -124,19 +124,21 @@ sub get-form-data($file,
                   :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
                   :$debug,
                  ) is export {
-    # read box data for each form and page
+    # read row data for each form and page
+
     # current objects
     # return a Form object
     my $form = Form.new: :id($form-id);
+
     # child objects of a form
     my $page;
+    my $pageid; # for later ref
     # child objects of a page
-    my $box;
     my $row;
-    # child objects of a row
-    my $field;
 
+    my $lnum = 0;
     LINE: for $file.IO.lines -> $line is copy {
+        ++$lnum;
         $line = strip-comment $line;
         next if $line !~~ /\S/;
         # remove commas, replace with spaces
@@ -145,17 +147,19 @@ sub get-form-data($file,
         if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + id
                        [ \h+ (\S+)                 # key + id + 1 arg
                           [ \h+ (\S+)              # key + id + 2 args
+=begin comment
                              [ \h+ (\S+)           # key + id + 3 args
                                 [ \h+ (\S+) ]      # key + id + 4 args
                              ]? \h* 
+=end comment
                           ]? \h* 
                        ]? \h* $/ {
             # this ought to match all input
             if not $0 {
-                die "FATAL: Unexpected nil \$0 match on line: $line";
+                die "FATAL: Unexpected nil \$0 match on line $lnum: $line";
             }
             if not $1 {
-                die "FATAL: Unexpected nil \$1 match on line: $line";
+                die "FATAL: Unexpected nil \$1 match on line $lnum: $line";
             }
             my $key = ~$0;
             my $id  = ~$1;
@@ -176,71 +180,82 @@ sub get-form-data($file,
                 }
                 when /page/  {
                     # a new page to add to the existing form
-                    $page = Page.new: :$id;
-                    $form.pages.push: $page;
+                    $pageid = $id.Int; # for later ref
+                    $page   = Page.new: :id($pageid);
+                    $form.pages{$id} = $page;
                 }
                 when /^row/   {
                     # a new row to add to the existing page
                     =begin comment
-                    form-add-row :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                                     :$debug!,)
                     =end comment
 
-                    $row = Row.new: :$id;
-                    $page.rows{$row.id} = $row;
                     # fill its attributes
+                    my ($nr-lly, $nr-ury, $nr-h);
                     # row: id lly ury|h:val  # key + id + 2 args
                     say "DEBUG: checking row lly ($arg1)" if $debug;
-                    $row.lly = $arg1;
+                    $nr-lly = $arg1;
                     if $arg2 ~~ /'h:' (\S+) / {
                         say "DEBUG: checking row h ($arg2)" if $debug;
-                        $row.h = ~$0;
+                        $nr-h = ~$0;
                     }
                     else {
                         say "DEBUG: checking row ury ($arg2)" if $debug;
-                        $row.ury = $arg2;
-                        note "DEBUG: dumping row" if $debug;
-                        say $row.raku if $debug;
+                        $nr-ury = $arg2;
                     }
-                    $row.finish;
+                    # now get the new row
+                    $row = Row.new: :$id, :lly($nr-lly), :ury($nr-ury), :h($nr-h);
+                    $page.rows{$row.id} = $row;
+                    note "DEBUG: dumping row" if $debug;
+                    say $row.raku if $debug;
                 }
-                when /copyrows$/ {
-                    # duplicate a row on another page on the current page N more times:
+                when /copyrows $/ {
+                    =begin comment
+                    sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                                      :$debug!,)
+                    =end comment
+
+                    # duplicate a row set on another page onto the current page:
                     #    copyrows: pageN:rowid y:val # key + id + 1 args
                     say "DEBUG: found key: $key";
                 }
-                when /copyrow$/ {
+                when /duprow/ {
                     =begin comment
-                    form-copy-row :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
+                    sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                                    :$debug!,)
                     =end comment
 
-                    # two forms
                     # duplicate a row on the same page N more times:
-                    #    copyrow: rowid       c:13 dy:-24          # key + id + 2 args
-                    # copy a row on another page to the current page:
+                    #    copyrow: rowid       c:13    dy:-24       # key + id + 2 args
+                }
+                when /copyrow $/ {
+                    =begin comment
+                    sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                                      :$debug!,)
+                    =end comment
+
+                    # copy a single row on another page to the current page:
                     #    copyrow: pageN:rowid y:val                # key + id + 1 args
-                    my $other-page-id = $id;
-                    if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
-                        $other-page-id = +$0;
-                        $id = ~$1;
-                    }
-                    else {
-                        ; #die "FATAL: ";
-                    }
-                    if not $page.rows{$id}:exists {
-                        die "FATAL: Copy row '$id' not found (form x, page y)";
-                    }
-                    elsif $id !~~ /'01'$/ {
-                        die "FATAL: Copy row '$id' ends not in '01' as expected";
-                    }
+
                     my $s;
-                    if $nargs == 2 {
-                        $s = "$arg1 $arg2";
+                 
+                    if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
+                        my $other-page-id  = +$0;
+                        $id = ~$1;
+
+                        note "DEBUG: line $lnum: $line" if 1;
+                        if not $form.pages{$other-page-id}.rows{$id}:exists {
+                            die "FATAL: Copy row '$id' not found (form x, page $other-page-id)";
+                        }
+                        # now parse $arg1
+
                     }
-                    elsif $nargs == 1 {
-                        say "WARNING: 3 arg version not yet ready";
-                        say "  line: $line";
-                        next LINE;
-                        $s = "$arg1 $arg2 $arg3";
+                    elsif $nargs == 2 {
+                        if $id !~~ /'01'$/ {
+                            die "FATAL: Copy row '$id' ends not in '01' as expected";
+                        }
+                        $s = "$arg1 $arg2";
                     }
 
                     # params to be used in the copy
@@ -266,7 +281,7 @@ sub get-form-data($file,
                     }
                     elsif $nargs == 3  {
                         # three-arg form
-                        # duplicate a row on another page on the current page N more times:
+                        # duplicate a row on another page onto the current page N more times:
                         #    copyrow: pageN:rowid => c:13 dy:-24  y:val   # key + id + 3 args
                         # get the params to be copied
                         # must parse the $id first
@@ -322,52 +337,23 @@ sub get-form-data($file,
                 when /field/ {
                     # a new field to add to the existing row
                     =begin comment
-                    form-add-field :$row, :$id, :@args, :$line, :$debug;
+                    sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                                     :$row!,
+                                     :$debug!,)
                     =end comment
 
-                    $field = Field.new: :$id;
-                    $row.fields{$field.id} = $field;
                     # fill its attributes
                     #   field: id llx urx|w:val # key + 3 args
-                    $field.llx = $arg1;
+                    my ($nf-llx, $nf-urx, $nf-w);
+                    $nf-llx = $arg1;
                     if $arg2 ~~ /'w:' (\S+) / {
-                        $field.w = ~$0;
+                        $nf-w = ~$0;
                     }
                     else {
-                        $field.urx = $arg2;
+                        $nf-w = $arg2;
                     }
-                    $field.finish;
-                }
-                when /copybox/   {
-                    =begin comment
-                    form-copy-box :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
-                    =end comment
-                }
-                when /^box/   {
-                    # a new box to add to the existing page
-                    =begin comment
-                    form-add-box :$form, :$key, :$id, :@args, :page-id($page.id), :$line, :$debug;
-                    =end comment
-
-                    $box = Box.new: :$id;
-                    $page.boxes{$box.id} = $box;
-                    # fill its attributes
-                    # box: id llx lly urx|w:val ury|h:val  # key + id + 4 args
-                    $box.llx = $arg1;
-                    $box.lly = $arg2;
-                    if $arg3 ~~ /'w:' (\S+) / {
-                        $box.w = ~$0;
-                    }
-                    else {
-                        $box.urx = $arg3;
-                    }
-                    if $arg4 ~~ /'h:' (\S+) / {
-                        $box.h = ~$0;
-                    }
-                    else {
-                        $box.ury = $arg4;
-                    }
-                    $box.finish;
+                    my $field = Field.new: :$id, :llx($nf-llx), :urx($nf-urx), :w($nf-w);
+                    $row.fields{$field.id} = $field;
                 }
                 default {
                     die "FATAL: Unknown key '$key'";
