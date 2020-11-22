@@ -1,5 +1,6 @@
-form: f8949                                # key + id
-page: 1                                    # key + id
+ form: f8949                                # key + id
+
+page:1                                    # key + id
 #=================
 # NOTE: commas are replaced by spaces upon read
 #       object ids on a page must be unique
@@ -15,12 +16,12 @@ page: 1                                    # key + id
 # duprow:  rowid       c:N  dy:val                          # key + id + 2 args
 # NOTE:
 #    "copyrow" copies the single row on another page onto the current page (which must not reference itself)
-# copyrow:  pageN:rowid      y:val                           # key + id + 1 args
+# copyrow:  pageN:rowid      y:val                           # key + id + 1 arg
 # NOTE: 
 #    "copyrows" adds all copies of a row set on another page to the current page
 #    the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
 #       will be incremented by one for following rows in the row group
-# copyrows: pageN:rowid      y:val                           # key + id + 1 args
+# copyrows: pageN:rowid      y:val                           # key + id + 1 arg
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
@@ -65,3 +66,5 @@ copyrows: page1:box01 y:579
 copyrows: page1:line01 y:456
 
 copyrow: page1:total y:97
+
+
