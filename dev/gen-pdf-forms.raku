@@ -18,7 +18,7 @@ constant $f8949-data   = './f8949.data';
 constant $f1040sd-data = './f1040sd.data';
 
 use lib <../lib>;
-use TXF::IRS-Forms;
+use TXF::Forms;
 
 if not @*ARGS.elems {
     say qq:to/HERE/;
@@ -144,7 +144,7 @@ sub get-form-data($file,
         # remove commas, replace with spaces
         $line ~~ s:g/','/ /;
         say "DEBUG: line: $line" if $debug;
-        if $line ~~ /^ \h* (\S+) ':' \h* (\S+)     # key + id
+        if $line ~~ /^ \h* (\S+) \h* ':' \h* (\S+)     # key + id
                        [ \h+ (\S+)                 # key + id + 1 arg
                           [ \h+ (\S+)              # key + id + 2 args
 =begin comment

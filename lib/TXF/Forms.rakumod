@@ -2,8 +2,18 @@ unit module TXF::Forms;
 
 use Grammar::PrettyErrors;
 
+my @list;
 class Form-actions {
+    method TOP($/) {
+        =begin comment
+        my @h = $/.list;
+        note("key: $_") for @h; #%h.keys.sort;
+        =end comment
+    }
+
     method line($/) {
+        my $h = $/.hash;
+        @list.push: $h; 
         =begin comment
         my $s = 'line';
         note "DEBUG: found a <$s> token: '{~$/}'";
@@ -17,6 +27,7 @@ class Form-actions {
     }
     method page($/) {
         =begin comment
+        note "DEBUG: found a <page> token: '{$/.page}'";
         my $s = 'page';
         note "DEBUG: found a <$s> token: '{~$/}'";
         =end comment
@@ -29,6 +40,7 @@ class Form-actions {
     }
     method arg($/) {
         =begin comment
+        $/.make;
         my $s = 'arg';
         note "DEBUG: found a <$s> token: '{~$/}'";
         =end comment
@@ -52,7 +64,7 @@ grammar Form-grammar does Grammar::PrettyErrors {
                      || <duprow>
                      || <field>
                    ]?
-                   <eol>
+                   <.eol>
                  }
 
     # these tokens take 1 arg (id)
