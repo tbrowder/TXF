@@ -8,6 +8,7 @@
   "depends": [
     "Text::CSV::LibCSV",
     "Config::TOML",
+    "Grammar::PrettyErrors",
     "Text::Utils"
   ],
   "description": "Convert CSV files to TXF format for tax software import",
