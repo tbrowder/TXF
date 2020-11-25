@@ -73,49 +73,49 @@ write-form-test :form-data($f8949), :$blank, :$debug;
 exit;
 
 if 0 {
-# Open an existing PDF file
-my $pdf = PDF::API6.new;
-$pdf .= open($i8949);
-# Add a blank page
-#my $page = $pdf.add-page();
-# Retrieve an existing page
-my $page1 = $pdf.page(1);
-my $page2 = $pdf.page(2);
-# Set the default page size for all pages
-$pdf.media-box = Letter;
-# Use a standard PDF core font
-#my CoreFont $font = $pdf.core-font('Helvetica-Bold');
-my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
-$page1.text: {
-    .font = $font, 9;
-    # line 1, col 1, (of 14), y increment 24 points
-    .text-position = 35, 420+2;
-    .say('100 sh XYZ');
-    .text-position = 176, 420+2;
-    .say('10/12/2019');
-    .text-position = 226, 420+2;
-    .say('07/22/2000');
-    .text-position = 35, 396+2;
-    .say('100 sh XYZ');
-    .text-position = 35, 374;
-    .say('100 sh XYZ');
-    .text-position = 35, 350;
-    .say('100 sh XYZ');
-}
-$page2.text: {
-    .font = $font, 9;
-    .text-position = 35, 458;
-    .say('100 sh XYZ');
-    .text-position = 35, 434;
-    .say('100 sh XYZ');
-    .text-position = 35, 410;
-    .say('100 sh XYZ');
-    .text-position = 35, 386;
-    .say('100 sh XYZ');
-}
-# Save the new PDF
-$pdf.save-as($o8949);
-say "See file '$o8949'";
+    # Open an existing PDF file
+    my $pdf = PDF::API6.new;
+    $pdf .= open($i8949);
+    # Add a blank page
+    #my $page = $pdf.add-page();
+    # Retrieve an existing page
+    my $page1 = $pdf.page(1);
+    my $page2 = $pdf.page(2);
+    # Set the default page size for all pages
+    $pdf.media-box = Letter;
+    # Use a standard PDF core font
+    #my CoreFont $font = $pdf.core-font('Helvetica-Bold');
+    my $font = $pdf.core-font: :family<Helvetica>; #, :weight<Bold>;
+    $page1.text: {
+        .font = $font, 9;
+        # line 1, col 1, (of 14), y increment 24 points
+        .text-position = 35, 420+2;
+        .say('100 sh XYZ');
+        .text-position = 176, 420+2;
+        .say('10/12/2019');
+        .text-position = 226, 420+2;
+        .say('07/22/2000');
+        .text-position = 35, 396+2;
+        .say('100 sh XYZ');
+        .text-position = 35, 374;
+        .say('100 sh XYZ');
+        .text-position = 35, 350;
+        .say('100 sh XYZ');
+    }
+    $page2.text: {
+        .font = $font, 9;
+        .text-position = 35, 458;
+        .say('100 sh XYZ');
+        .text-position = 35, 434;
+        .say('100 sh XYZ');
+        .text-position = 35, 410;
+        .say('100 sh XYZ');
+        .text-position = 35, 386;
+        .say('100 sh XYZ');
+    }
+    # Save the new PDF
+    $pdf.save-as($o8949);
+    say "See file '$o8949'";
 }
 
 
@@ -171,196 +171,197 @@ sub get-form-data($file,
         my $nargs = @args.elems;
 
         given $key {
-                when $_ eq <form> {
+            when $_ eq <form> {
                     # the id MUST be the same as in $form
-                    if $id ne $form.id {
-                        die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
-                    }
+                if $id ne $form.id {
+                    die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
                 }
-                when /page/  {
-                    # a new page to add to the existing form
-                    $pageid = $id.Int; # for later ref
-                    $page   = Page.new: :id($pageid);
-                    $form.pages{$id} = $page;
-                }
-                when /^row/   {
-                    # a new row to add to the existing page
-                    =begin comment
-                    sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                     :$debug!,)
-                    =end comment
+            }
+            when /page/  {
+                # a new page to add to the existing form
+                $pageid = $id.Int; # for later ref
+                $page   = Page.new: :id($pageid);
+                $form.pages{$id} = $page;
+            }
+            when /^row/   {
+                # a new row to add to the existing page
+                =begin comment
+                sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
+                                 :$debug!,)
+                =end comment
 
-                    # fill its attributes
-                    my ($nr-lly, $nr-ury, $nr-h);
-                    # row: id lly ury|h:val  # key + id + 2 args
-                    my $arg1 = @args[0];
-                    my $arg2 = @args[1];
-                    say "DEBUG: checking row lly ($arg1)" if $debug;
-                    $nr-lly = $arg1;
-                    if $arg2 ~~ /'h:' (\S+) / {
-                        say "DEBUG: checking row h ($arg2)" if $debug;
-                        $nr-h = ~$0;
+                # fill its attributes
+                my ($nr-lly, $nr-ury, $nr-h);
+                # row: id lly ury|h:val  # key + id + 2 args
+                my $arg1 = @args[0];
+                my $arg2 = @args[1];
+                say "DEBUG: checking row lly ($arg1)" if $debug;
+                $nr-lly = $arg1;
+                if $arg2 ~~ /'h:' (\S+) / {
+                    say "DEBUG: checking row h ($arg2)" if $debug;
+                    $nr-h = ~$0;
+                }
+                else {
+                    say "DEBUG: checking row ury ($arg2)" if $debug;
+                    $nr-ury = $arg2;
+                }
+                # now get the new row
+                $row = Row.new: :$id, :lly($nr-lly), :ury($nr-ury), :h($nr-h);
+                $page.rows{$row.id} = $row;
+                note "DEBUG: dumping row" if $debug;
+                say $row.raku if $debug;
+            }
+            when /copyrows $/ {
+                =begin comment
+                sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
+                                  :$debug!,)
+                =end comment
+
+                # duplicate a row set on another page onto the current page:
+                #    copyrows: pageN:rowid y:val # key + id + 1 args
+                say "DEBUG: found key: $key";
+            }
+            when /duprow/ {
+                =begin comment
+                sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
+                                :$debug!,)
+                =end comment
+
+                # duplicate a row on the same page N more times:
+                #    copyrow: rowid       c:13    dy:-24       # key + id + 2 args
+            }
+            when /copyrow $/ {
+                =begin comment
+                sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
+                                 :$debug!,)
+                =end comment
+                my $arg1 = @args[0];
+                my $arg2 = @args[1];
+
+                # copy a single row on another page to the current page:
+                #    copyrow: pageN:rowid y:val                # key + id + 1 args
+
+                my $s;
+
+                if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
+                    my $other-page-id  = +$0;
+                    $id = ~$1;
+
+                    note "DEBUG: line $lnum: $line" if 1;
+                    if not $form.pages{$other-page-id}.rows{$id}:exists {
+                        die "FATAL: Copy row '$id' not found (form x, page $other-page-id)";
+                    }
+                    # now parse $arg1
+
+                }
+                elsif $nargs == 2 {
+                    if $id !~~ /'01'$/ {
+                        die "FATAL: Copy row '$id' ends not in '01' as expected";
+                    }
+                    $s = "$arg1 $arg2";
+                }
+
+                # params to be used in the copy
+                my $copies; # = +$0;
+                my $dy;     # = +$1;
+                my $nf;     # = $row.fields.elems;
+                my $lly;    # = $row.lly;
+                my $ury;    # = $row.ury;
+                my $starty; #
+
+                if $nargs == 2 and $s ~~ /\h* 'c:' (\d+)
+                \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
+                / {
+                    # two-arg form
+                    # duplicate a row on the same page N more times:
+                    #    copyrow: rowid => c:13 dy:-24          # key + id + 2 args
+                    # get the params to be copied
+                    $copies = +$0;
+                    $dy     = +$1;
+                    $nf     = $row.fields.elems;
+                    $lly    = $row.lly;
+                    $ury    = $row.ury;
+                }
+                elsif $nargs == 3  {
+                    # three-arg form
+                    # duplicate a row on another page onto the current page N more times:
+                    #    copyrow: pageN:rowid => c:13 dy:-24  y:val   # key + id + 3 args
+                    # get the params to be copied
+                    # must parse the $id first
+                    if $id ~~ / page (\d+) ':' (\S+) / {
+                        my $pn  = +$0;
+                        my $rid = ~$1;
                     }
                     else {
-                        say "DEBUG: checking row ury ($arg2)" if $debug;
-                        $nr-ury = $arg2;
+                        die "FATAL: ";
                     }
-                    # now get the new row
-                    $row = Row.new: :$id, :lly($nr-lly), :ury($nr-ury), :h($nr-h);
-                    $page.rows{$row.id} = $row;
-                    note "DEBUG: dumping row" if $debug;
-                    say $row.raku if $debug;
-                }
-                when /copyrows $/ {
-                    =begin comment
-                    sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                      :$debug!,)
-                    =end comment
-
-                    # duplicate a row set on another page onto the current page:
-                    #    copyrows: pageN:rowid y:val # key + id + 1 args
-                    say "DEBUG: found key: $key";
-                }
-                when /duprow/ {
-                    =begin comment
-                    sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                    :$debug!,)
-                    =end comment
-
-                    # duplicate a row on the same page N more times:
-                    #    copyrow: rowid       c:13    dy:-24       # key + id + 2 args
-                }
-                when /copyrow $/ {
-                    =begin comment
-                    sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                      :$debug!,)
-                    =end comment
-                    my $arg1 = @args[0];
-                    my $arg2 = @args[1];
-
-                    # copy a single row on another page to the current page:
-                    #    copyrow: pageN:rowid y:val                # key + id + 1 args
-
-                    my $s;
-
-                    if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
-                        my $other-page-id  = +$0;
-                        $id = ~$1;
-
-                        note "DEBUG: line $lnum: $line" if 1;
-                        if not $form.pages{$other-page-id}.rows{$id}:exists {
-                            die "FATAL: Copy row '$id' not found (form x, page $other-page-id)";
-                        }
-                        # now parse $arg1
-
-                    }
-                    elsif $nargs == 2 {
-                        if $id !~~ /'01'$/ {
-                            die "FATAL: Copy row '$id' ends not in '01' as expected";
-                        }
-                        $s = "$arg1 $arg2";
-                    }
-
-                    # params to be used in the copy
-                    my $copies; # = +$0;
-                    my $dy;     # = +$1;
-                    my $nf;     # = $row.fields.elems;
-                    my $lly;    # = $row.lly;
-                    my $ury;    # = $row.ury;
-                    my $starty; #
-
-                    if $nargs == 2 and $s ~~ /\h* 'c:' (\d+)
-                                              \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
-                                             / {
-                        # two-arg form
-                        # duplicate a row on the same page N more times:
-                        #    copyrow: rowid => c:13 dy:-24          # key + id + 2 args
-                        # get the params to be copied
+                    # then the three args
+                    if $s ~~ /\h* 'c:' (\d+)
+                    \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
+                    \h+ 'y:' (<[+-]>? \d+ ['.'\d*]?)
+                    / {
                         $copies = +$0;
                         $dy     = +$1;
+                        $starty = +$2;
                         $nf     = $row.fields.elems;
                         $lly    = $row.lly;
                         $ury    = $row.ury;
                     }
-                    elsif $nargs == 3  {
-                        # three-arg form
-                        # duplicate a row on another page onto the current page N more times:
-                        #    copyrow: pageN:rowid => c:13 dy:-24  y:val   # key + id + 3 args
-                        # get the params to be copied
-                        # must parse the $id first
-                        if $id ~~ / page (\d+) ':' (\S+) / {
-                            my $pn  = +$0;
-                            my $rid = ~$1;
-                        }
-                        else {
-                            die "FATAL: ";
-                        }
-                        # then the three args
-                        if $s ~~ /\h* 'c:' (\d+)
-                                  \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
-                                  \h+ 'y:' (<[+-]>? \d+ ['.'\d*]?)
-                                 / {
-                            $copies = +$0;
-                            $dy     = +$1;
-                            $starty = +$2;
-                            $nf     = $row.fields.elems;
-                            $lly    = $row.lly;
-                            $ury    = $row.ury;
-                        }
-                        else {
-                            die "FATAL: ";
-                        }
-                    }
                     else {
-                        die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
+                        die "FATAL: ";
                     }
-
-                    # dup each row
-                    for 1..$copies -> $n is copy {
-                        ++$n; # make line num correct
-                        #my $rowid = "line{$n+1}";
-                        my $rowid = sprintf 'line%02d', $n;
-                        $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
-                        $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
-                        my $newrow = Row.new: :id($rowid), :$lly, :$ury;
-                        # add row to the page
-                        $page.rows{$rowid} = $newrow;
-
-                        # dup each field
-                        for $row.fields.keys.sort -> $k {
-                            # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
-                            # get the master row's corresponding field's x values
-                            my $llx = $row.fields{$k}.llx;
-                            my $urx = $row.fields{$k}.urx;
-                            my $f = Field.new: :id($k), :$llx, :$urx;
-                            $newrow.fields{$k} = $f;
-                        } # end dup field
-                    } # end dup row
                 }
-                when /field/ {
-                    # a new field to add to the existing row
-                    =begin comment
-                    sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                     :$row!,
-                                     :$debug!,)
-                    =end comment
+                else {
+                    die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
+                }
 
-                    # fill its attributes
-                    #   field: id llx urx|w:val # key + 3 args
-                    my ($nf-llx, $nf-urx, $nf-w);
-                    $nf-llx = $arg1;
-                    if $arg2 ~~ /'w:' (\S+) / {
-                        $nf-w = ~$0;
-                    }
-                    else {
-                        $nf-w = $arg2;
-                    }
-                    my $field = Field.new: :$id, :llx($nf-llx), :urx($nf-urx), :w($nf-w);
-                    $row.fields{$field.id} = $field;
+                # dup each row
+                for 1..$copies -> $n is copy {
+                    ++$n; # make line num correct
+                    #my $rowid = "line{$n+1}";
+                    my $rowid = sprintf 'line%02d', $n;
+                    $lly += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                    $ury += $dy; # NOTE currently we expect the dy value to be negative for succeeding rows
+                    my $newrow = Row.new: :id($rowid), :$lly, :$ury;
+                    # add row to the page
+                    $page.rows{$rowid} = $newrow;
+
+                    # dup each field
+                    for $row.fields.keys.sort -> $k {
+                        # the keys are 'a'..'h' (8 fields corresponding to the form column letters)
+                        # get the master row's corresponding field's x values
+                        my $llx = $row.fields{$k}.llx;
+                        my $urx = $row.fields{$k}.urx;
+                        my $f = Field.new: :id($k), :$llx, :$urx;
+                        $newrow.fields{$k} = $f;
+                    } # end dup field
+                } # end dup row
+            }
+            when /field/ {
+                # a new field to add to the existing row
+                =begin comment
+                sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
+                                   :$row!,
+                                   :$debug!,)
+                =end comment
+
+                my $arg1 = @args[0];
+                my $arg2 = @args[1];
+                # fill its attributes
+                #   field: id llx urx|w:val # key + 3 args
+                my ($nf-llx, $nf-urx, $nf-w);
+                $nf-llx = $arg1;
+                if $arg2 ~~ /'w:' (\S+) / {
+                    $nf-w = ~$0;
                 }
-                default {
-                    die "FATAL: Unknown key '$key'";
+                else {
+                    $nf-w = $arg2;
                 }
+                my $field = Field.new: :$id, :llx($nf-llx), :urx($nf-urx), :w($nf-w);
+                $row.fields{$field.id} = $field;
+            }
+            default {
+                die "FATAL: Unknown key '$key'";
             }
         }
     }
