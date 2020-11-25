@@ -158,32 +158,38 @@ sub get-form-data($file,
         $line .= trim-leading;
         # get the mandatory key
 
-        my $idx = index ':', $line;
+        my $idx = index $line, ':';
         if not defined $idx {
             die "FATAL: Mandatory line leading key token 'xxx:' not found on line $lnum: $line";
         }
-        my $key = substr $line, 0, $idx+1;
+        my $key = substr $line, 0, $idx; # don't take the colon
         # elim internal spaces
         $key  .= subst: ' ', '', :g;
-        $line .= substr: $idx;
+        $line .= substr: $idx+1; # skip the colon again
         my @args = $line.words;
         my $id = @args.shift;
         my $nargs = @args.elems;
-
+        say "DEBUG: key '$key' id '$id', line $lnum: '$line'" if $debug;
         given $key {
             when $_ eq <form> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                     # the id MUST be the same as in $form
                 if $id ne $form.id {
                     die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
                 }
             }
-            when /page/  {
+            when $_ eq <page> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 # a new page to add to the existing form
                 $pageid = $id.Int; # for later ref
                 $page   = Page.new: :id($pageid);
                 $form.pages{$id} = $page;
             }
-            when /^row/   {
+            when $_ eq <row> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 # a new row to add to the existing page
                 =begin comment
                 sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
@@ -211,7 +217,9 @@ sub get-form-data($file,
                 note "DEBUG: dumping row" if $debug;
                 say $row.raku if $debug;
             }
-            when /copyrows $/ {
+            when $_ eq <copyrows> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 =begin comment
                 sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                   :$debug!,)
@@ -221,7 +229,9 @@ sub get-form-data($file,
                 #    copyrows: pageN:rowid y:val # key + id + 1 args
                 say "DEBUG: found key: $key";
             }
-            when /duprow/ {
+            when $_ eq <duprow> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 =begin comment
                 sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                 :$debug!,)
@@ -230,7 +240,9 @@ sub get-form-data($file,
                 # duplicate a row on the same page N more times:
                 #    copyrow: rowid       c:13    dy:-24       # key + id + 2 args
             }
-            when /copyrow $/ {
+            when $_ eq <copyrow> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 =begin comment
                 sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                  :$debug!,)
@@ -337,7 +349,9 @@ sub get-form-data($file,
                     } # end dup field
                 } # end dup row
             }
-            when /field/ {
+            when $_ eq <field> {
+                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+
                 # a new field to add to the existing row
                 =begin comment
                 sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
