@@ -27,7 +27,7 @@ if not @*ARGS.elems {
     Uses file 1 ($i8949)
       and
          file 2 ($i1040sd)
-      plus data from 
+      plus data from
          file 3 ($f8949-data)
       and
          file 4 ($f1040sd-data)
@@ -120,14 +120,25 @@ say "See file '$o8949'";
 
 
 #### SUBROUTINES ####
-sub get-form-data($file, 
-                  :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
-                  :$debug,
-                 ) is export {
+our constant %valid-keys is export = set <
+    form
+    page
+    row
+    field
+    duprow
+    copyrow
+    copyrows
+>;
+
+sub get-form-data($file,
+    :$form-id! where {$form-id ~~ /'f8949'|'f1040sd'/},
+    :$debug,
+    --> Form) is export {
+
     # read row data for each form and page
 
     # current objects
-    # return a Form object
+    # need a Form object to return
     my $form = Form.new: :id($form-id);
 
     # child objects of a form
@@ -144,35 +155,23 @@ sub get-form-data($file,
         # remove commas, replace with spaces
         $line ~~ s:g/','/ /;
         say "DEBUG: line: $line" if $debug;
-        if $line ~~ /^ \h* (\S+) \h* ':' \h* (\S+)     # key + id
-                       [ \h+ (\S+)                 # key + id + 1 arg
-                          [ \h+ (\S+)              # key + id + 2 args
-=begin comment
-                             [ \h+ (\S+)           # key + id + 3 args
-                                [ \h+ (\S+) ]      # key + id + 4 args
-                             ]? \h* 
-=end comment
-                          ]? \h* 
-                       ]? \h* $/ {
-            # this ought to match all input
-            if not $0 {
-                die "FATAL: Unexpected nil \$0 match on line $lnum: $line";
-            }
-            if not $1 {
-                die "FATAL: Unexpected nil \$1 match on line $lnum: $line";
-            }
-            my $key = ~$0;
-            my $id  = ~$1;
-            my ($arg1, $arg2, $arg3, $arg4);
-            my @args;
-            if $2 { $arg1 = ~$2; @args.push: $arg1; }
-            if $3 { $arg2 = ~$3; @args.push: $arg2; }
-            if $4 { $arg3 = ~$4; @args.push: $arg3; }
-            if $5 { $arg4 = ~$5; @args.push: $arg4; }
-            my $nargs = @args.elems;
+        $line .= trim-leading;
+        # get the mandatory key
 
-            given $key {
-                when /form/ {
+        my $idx = index ':', $line;
+        if not defined $idx {
+            die "FATAL: Mandatory line leading key token 'xxx:' not found on line $lnum: $line";
+        }
+        my $key = substr $line, 0, $idx+1;
+        # elim internal spaces
+        $key  .= subst: ' ', '', :g;
+        $line .= substr: $idx;
+        my @args = $line.words;
+        my $id = @args.shift;
+        my $nargs = @args.elems;
+
+        given $key {
+                when $_ eq <form> {
                     # the id MUST be the same as in $form
                     if $id ne $form.id {
                         die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
@@ -187,13 +186,15 @@ sub get-form-data($file,
                 when /^row/   {
                     # a new row to add to the existing page
                     =begin comment
-                    sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                    sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                      :$debug!,)
                     =end comment
 
                     # fill its attributes
                     my ($nr-lly, $nr-ury, $nr-h);
                     # row: id lly ury|h:val  # key + id + 2 args
+                    my $arg1 = @args[0];
+                    my $arg2 = @args[1];
                     say "DEBUG: checking row lly ($arg1)" if $debug;
                     $nr-lly = $arg1;
                     if $arg2 ~~ /'h:' (\S+) / {
@@ -212,7 +213,7 @@ sub get-form-data($file,
                 }
                 when /copyrows $/ {
                     =begin comment
-                    sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                    sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                       :$debug!,)
                     =end comment
 
@@ -222,7 +223,7 @@ sub get-form-data($file,
                 }
                 when /duprow/ {
                     =begin comment
-                    sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                    sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                     :$debug!,)
                     =end comment
 
@@ -231,15 +232,17 @@ sub get-form-data($file,
                 }
                 when /copyrow $/ {
                     =begin comment
-                    sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                    sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                       :$debug!,)
                     =end comment
+                    my $arg1 = @args[0];
+                    my $arg2 = @args[1];
 
                     # copy a single row on another page to the current page:
                     #    copyrow: pageN:rowid y:val                # key + id + 1 args
 
                     my $s;
-                 
+
                     if $nargs == 1 and $id ~~ / page (\d+) ':' (\S+) / {
                         my $other-page-id  = +$0;
                         $id = ~$1;
@@ -267,7 +270,7 @@ sub get-form-data($file,
                     my $starty; #
 
                     if $nargs == 2 and $s ~~ /\h* 'c:' (\d+)
-                                              \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) 
+                                              \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
                                              / {
                         # two-arg form
                         # duplicate a row on the same page N more times:
@@ -293,9 +296,9 @@ sub get-form-data($file,
                             die "FATAL: ";
                         }
                         # then the three args
-                        if $s ~~ /\h* 'c:' (\d+) 
-                                  \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?) 
-                                  \h+ 'y:' (<[+-]>? \d+ ['.'\d*]?) 
+                        if $s ~~ /\h* 'c:' (\d+)
+                                  \h+ 'dy:' (<[+-]>? \d+ ['.'\d*]?)
+                                  \h+ 'y:' (<[+-]>? \d+ ['.'\d*]?)
                                  / {
                             $copies = +$0;
                             $dy     = +$1;
@@ -312,7 +315,7 @@ sub get-form-data($file,
                         die "FATAL: Unexpected format on a 'copyrow' line: '$s'";
                     }
 
-                    # dup each row 
+                    # dup each row
                     for 1..$copies -> $n is copy {
                         ++$n; # make line num correct
                         #my $rowid = "line{$n+1}";
@@ -337,7 +340,7 @@ sub get-form-data($file,
                 when /field/ {
                     # a new field to add to the existing row
                     =begin comment
-                    sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!, 
+                    sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
                                      :$row!,
                                      :$debug!,)
                     =end comment
@@ -360,9 +363,6 @@ sub get-form-data($file,
                 }
             }
         }
-        else {
-            die "FATAL: unexpected line '$line'";
-        }
     }
 
     return $form;
@@ -375,8 +375,8 @@ sub get-form-data($file,
 #   write text in a box
 #   write a paragraph of text with justification
 multi sub outline-box(
-    $page, # a PDF page object 
-    $llx, $lly, $urx, $ury, 
+    $page, # a PDF page object
+    $llx, $lly, $urx, $ury,
     :@color   = [1, 0, 0], # rgb decimal red
     :$linewidth = 1.0,
     :$debug,
@@ -388,12 +388,12 @@ multi sub outline-box(
     $gfx.StrokeColor = rgb(@color[0..2]);
     $gfx.Rectangle($llx, $lly, $urx, $ury);
     $gfx.paint: :stroke;
-    $gfx.Restore;    
+    $gfx.Restore;
 } # sub outline-box
 
 multi sub fill-box(
-    $page, # a PDF page object 
-    $llx, $lly, $urx, $ury, 
+    $page, # a PDF page object
+    $llx, $lly, $urx, $ury,
     :@color   = [1, 0, 0], # rgb decimal red
     :$debug,
     ) is export {
@@ -404,12 +404,12 @@ multi sub fill-box(
     $gfx.FillColor = rgb(@color[0..2]);
     $gfx.Rectangle($llx, $lly, $urx, $ury);
     $gfx.paint: :fill;
-    $gfx.Restore;    
+    $gfx.Restore;
 } # sub fill-box
 
 multi sub write-text(
-    $page, # a PDF page object 
-    $llx, $lly, $urx, $ury, 
+    $page, # a PDF page object
+    $llx, $lly, $urx, $ury,
     :$text!,
     :$halign = 'left',
     :$valign = 'bottom',
@@ -443,7 +443,7 @@ sub write-form-test(
 
     # assumes two-page forms for now
     my ($page1, $page2);
-    
+
     if $blank {
         # Add blank pages
         $page1 = $pdf.add-page();
@@ -505,18 +505,14 @@ sub write-form-test(
 
 } # sub write-form-test
 
-sub form-add-box() {
-}
-
-sub form-copy-box() {
-}
-
 sub form-add-row() {
 }
 
-sub form-copy-row() {
+sub form-copyrow() {
+}
+
+sub form-copyrows() {
 }
 
 sub form-add-field() {
 }
-

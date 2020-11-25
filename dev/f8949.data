@@ -9,19 +9,35 @@ page:1                                    # key + id
 #       IRS forms use term "box" for a row with a single field
 # row:      id          lly  ury|h:val                       # key + id + 2 args
 #   field:  id          llx  urx|w:val                       # key + id + 2 args
-# NOTE: 
+# NOTE:
 #    "duprow" adds N copies of a row immediately following it on the same page
-#       the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
+#       the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01
 #       will be incremented by one for following rows in the row group
 # duprow:  rowid       c:N  dy:val                          # key + id + 2 args
 # NOTE:
 #    "copyrow" copies the single row on another page onto the current page (which must not reference itself)
 # copyrow:  pageN:rowid      y:val                           # key + id + 1 arg
-# NOTE: 
+# NOTE:
 #    "copyrows" adds all copies of a row set on another page to the current page
-#    the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01 
+#    the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01
 #       will be incremented by one for following rows in the row group
 # copyrows: pageN:rowid      y:val                           # key + id + 1 arg
+
+#==========================================================
+# In summary, every line describes an object or action on an
+# object. A line has the format:
+# rule { somekey ':' id arg**1..3  $ }
+#
+# The seven line keys are:
+#
+#    form
+#    page
+#    row
+#    field
+#    duprow
+#    copyrow
+#    copyrows
+#==========================================================
 
 # 1 data line of two columns (fields)
 row: taxpayer 684 708
@@ -66,5 +82,3 @@ copyrows: page1:box01 y:579
 copyrows: page1:line01 y:456
 
 copyrow: page1:total y:97
-
-
