@@ -65,6 +65,9 @@ if not $test {
     exit;
 }
 
+say "DEBUG exit for test" if $test;
+exit if $test;
+
 my $name = "Thomas M. Jr. and Lauren L. Browder";
 my $ssan = "999-99-9999";
 
@@ -172,29 +175,21 @@ sub get-form-data($file,
         say "DEBUG: key '$key' id '$id', line $lnum: '$line'" if $debug;
         given $key {
             when $_ eq <form> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
-                    # the id MUST be the same as in $form
+                # the id MUST be the same as in $form
                 if $id ne $form.id {
                     die "FATAL: Internal form \$id ($id) and Form.id ({$form.id}) don't match";
                 }
             }
             when $_ eq <page> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
                 # a new page to add to the existing form
                 $pageid = $id.Int; # for later ref
                 $page   = Page.new: :id($pageid);
                 $form.pages{$id} = $page;
             }
             when $_ eq <row> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
                 # a new row to add to the existing page
-                =begin comment
-                sub form-add-row(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                 :$debug!,)
-                =end comment
+                form-add-row :$form, :$key, :$id, :@args, :$pageid, :$line, :$debug;
+                next;
 
                 # fill its attributes
                 my ($nr-lly, $nr-ury, $nr-h);
@@ -218,35 +213,23 @@ sub get-form-data($file,
                 say $row.raku if $debug;
             }
             when $_ eq <copyrows> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
-                =begin comment
-                sub form-copyrows(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                  :$debug!,)
-                =end comment
+                #say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+                form-copyrows :$form, :$key, :$id, :@args, :$pageid, :$line, :$debug;
 
                 # duplicate a row set on another page onto the current page:
                 #    copyrows: pageN:rowid y:val # key + id + 1 args
                 say "DEBUG: found key: $key";
             }
             when $_ eq <duprow> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
-                =begin comment
-                sub form-duprow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                :$debug!,)
-                =end comment
+                form-duprow :$form, :$key, :$id, :@args, :$pageid, :$line, :$debug;
 
                 # duplicate a row on the same page N more times:
                 #    copyrow: rowid       c:13    dy:-24       # key + id + 2 args
             }
             when $_ eq <copyrow> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
+                form-copyrow :$form, :$key, :$id, :@args, :$pageid, :$line, :$debug;
+                next; # tmp
 
-                =begin comment
-                sub form-copyrow(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                 :$debug!,)
-                =end comment
                 my $arg1 = @args[0];
                 my $arg2 = @args[1];
 
@@ -350,14 +333,9 @@ sub get-form-data($file,
                 } # end dup row
             }
             when $_ eq <field> {
-                say "DEBUG: next line after this report: key '$key' id '$id', line $lnum: '$line'"; next LINE;
-
                 # a new field to add to the existing row
-                =begin comment
-                sub form-add-field(:$form!, :$key!, :$id!, :@args!, :$pageid!, :$line!,
-                                   :$row!,
-                                   :$debug!,)
-                =end comment
+                form-add-field :$form, :$key, :$id, :@args, :$pageid, :$row, :$line, :$debug;
+                next; # tmp
 
                 my $arg1 = @args[0];
                 my $arg2 = @args[1];
@@ -520,14 +498,32 @@ sub write-form-test(
 
 } # sub write-form-test
 
-sub form-add-row() {
+sub form-add-row(
+    :$form!, :$key!, :$id!, :@args, :$pageid!,
+    :$line, :$debug, # optional
+    ) {
 }
 
-sub form-copyrow() {
+sub form-duprow(
+    :$form!, :$key!, :$id!, :@args!, :$pageid!,
+    :$line, :$debug, # optional
+    ) {
 }
 
-sub form-copyrows() {
+sub form-copyrow(
+    :$form!, :$key!, :$id!, :@args!, :$pageid!, 
+    :$line, :$debug, # optional
+    ) {
 }
 
-sub form-add-field() {
+sub form-copyrows(
+    :$form!, :$key!, :$id!, :@args!, :$pageid!, 
+    :$line, :$debug, # optional
+    ) {
+}
+
+sub form-add-field(
+    :$form!, :$key!, :$id!, :@args!, :$pageid!, :$row!, 
+    :$line, :$debug, # optional
+    ) {
 }
