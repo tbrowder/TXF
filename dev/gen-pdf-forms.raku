@@ -498,32 +498,65 @@ sub write-form-test(
 
 } # sub write-form-test
 
+
+
+# row: id  lly  ury|h:val  # key + id + 2 args
 sub form-add-row(
     :$form!, :$key!, :$id!, :@args, :$pageid!,
     :$line, :$debug, # optional
     ) {
 }
 
+# duprow" adds N copies of a row immediately following it on the same page
+#       the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01
+#       will be incremented by one for following rows in the row group
+#
+# duprow:  rowid  c:N  dy:val  # key + id + 2 args
 sub form-duprow(
     :$form!, :$key!, :$id!, :@args!, :$pageid!,
     :$line, :$debug, # optional
     ) {
 }
 
+# "copyrow" copies the single row on another page onto the 
+# current page (which must not reference itself)
+#
+# copyrow:  pageN:rowid  y:val  # key + id + 1 arg
 sub form-copyrow(
     :$form!, :$key!, :$id!, :@args!, :$pageid!, 
     :$line, :$debug, # optional
     ) {
 }
 
+# "copyrows" adds all copies of a row set on another page to the current page
+# the rowid needs to have an id of the form "xyz01" where xyz is the base name and 01
+# will be incremented by one for following rows in the row group
+#
+# copyrows: pageN:rowid y:val  # key + id + 1 arg
 sub form-copyrows(
     :$form!, :$key!, :$id!, :@args!, :$pageid!, 
     :$line, :$debug, # optional
     ) {
 }
 
+# field:  id  llx  urx|w:val  # key + id + 2 args
 sub form-add-field(
     :$form!, :$key!, :$id!, :@args!, :$pageid!, :$row!, 
     :$line, :$debug, # optional
     ) {
-}
+} # form-add-field
+
+sub split-arg($arg, :$debug --> List) {
+    my @list;
+    my $idx = index $arg, ':',
+    if defined $idx {
+        my $key = substr $line, 0, $idx; # don't take the colon
+        my $val = substr $line, $idx+1;  # skip the colon again
+        @list.push: $key;
+        @list.push: $val;
+    }
+    else {
+        @list.push: $arg;
+    }
+    return @list;
+} # split-arg
