@@ -166,6 +166,7 @@ class Box is export {
 class Field is export {
     # must define:
     has $.id  is rw;
+    has $.parent-id; # its parent row id
     has $.llx is rw;
 
     # must define one of the two:
@@ -179,6 +180,10 @@ class Field is export {
         if not $!id.defined {
             ++$err;
             $msg ~= "\$id\n";
+        }
+        if not $!parent-id.defined {
+            ++$err;
+            $msg ~= "\$parent-id\n";
         }
         if not $!llx.defined {
             ++$err;
@@ -205,6 +210,7 @@ class Field is export {
 class Row is export {
     # must define:
     has $.id  is rw;
+    has $.parent-id; # its parent page id
     has $.lly is rw;
 
     # must define one of the two:
@@ -218,6 +224,10 @@ class Row is export {
         if not $!id.defined {
             ++$err;
             $msg ~= "\$id\n";
+        }
+        if not $!parent-id.defined {
+            ++$err;
+            $msg ~= "\$parent-id\n";
         }
         if not $!lly.defined {
             ++$err;
